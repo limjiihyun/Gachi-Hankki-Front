@@ -4,6 +4,7 @@ import AuthStackNavigation from './AuthStackNavigation';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNavigationContainerRef} from '@react-navigation/native';
 import {Image, TouchableOpacity} from 'react-native';
+import MainStackNavigation from './MainStackNavigation';
 
 export const navigationRef = createNavigationContainerRef();
 const AppStack = createNativeStackNavigator();
@@ -23,6 +24,11 @@ export default function AppStackNavigation() {
         options={{
           headerShown: false,
         }}
+      />
+      <AppStack.Screen
+        name="MainStack"
+        component={MainStackNavigation}
+        options={{headerShown: false}}
       />
     </AppStack.Navigator>
   );

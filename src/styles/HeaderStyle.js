@@ -8,6 +8,11 @@ const HeaderStyle = StyleSheet.create({
   headerTitleText: {
     fontWeight: '700',
   },
+  goBackButtonTouch: {
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+  },
 });
 
 export default HeaderStyle;
