@@ -3,9 +3,8 @@ import colors from '../constants/colors/colors';
 
 const ProfileSettingStyle = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: colors.white,
-    width: '100%',
-    height: '100%',
   },
   imageContainer: {
     alignItems: 'center',
@@ -13,10 +12,11 @@ const ProfileSettingStyle = StyleSheet.create({
     marginTop: '10%',
   },
   imageBorder: {
-    borderRadius: 13,
+    borderRadius: 10,
     borderWidth: 1,
     width: 120,
     height: 120,
+    borderColor: colors.grey600,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -32,8 +32,24 @@ const ProfileSettingStyle = StyleSheet.create({
     width: 24,
     height: 24,
   },
+  departmentText: {
+    margin: 14,
+    fontWeight: '700',
+    color: colors.grey010,
+  },
   contentContainer: {
+    flex: 1,
     marginHorizontal: 16,
+  },
+  titleText: {
+    marginTop: 20,
+    fontWeight: '500',
+    color: colors.grey010,
+  },
+  bottomBarContainer: {
+    paddingHorizontal: 20,
+    backgroundColor: colors.white,
+    paddingBottom: 20,
   },
 });
 
