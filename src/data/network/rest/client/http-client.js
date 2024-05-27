@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {navigate} from '../../../../navigation/AppStackNavigation';
 
 export const Axios = axios.create({
-  baseURL: 'localhost:3000/api',
+  baseURL: 'http://localhost:3000/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

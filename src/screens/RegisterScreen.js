@@ -13,16 +13,34 @@ import CustomTextInput from '../components/AuthStack/CustomTextInput';
 import BrownBarButton from '../components/AuthStack/BottomBarButton';
 import colors from '../constants/colors/colors';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
+import client from '../data/network/rest/client';
+import axios from 'axios';
 
 function RegisterScreen({navigation}) {
   const [selected, setSelected] = useState(false);
+  const [id, setId] = useState('');
 
   const handleImagePress = () => {
     setSelected(!selected);
   };
 
-  const registerSuccessBtn = () => {
+  const handleIdChange = text => {
+    setId(text);
+  };
+
+  const registerSuccessBtn = async () => {
     navigation.navigate('AuthStack', {screen: 'RegisterSuccessScreen'});
+    // try {
+    //   const url = 'http://localhost:3000/signup';
+    //   const data = {
+    //     hanbatEmail: 'example@hanbat.ac.kr',
+    //   };
+    //   const response = await axios.post(url, data);
+    //   console.log('POST 요청 성공:', response.data);
+    //   navigation.navigate('AuthStack', {screen: 'RegisterSuccessScreen'});
+    // } catch (error) {
+    //   console.log('POST 요청 실패:', error.message);
+    // }
   };
 
   return (
@@ -40,6 +58,8 @@ function RegisterScreen({navigation}) {
             <EssentialInputWithTitle
               title={'아이디'}
               placeholder={'아이디(한밭대 구글이메일)'}
+              inputValue={id} // value 값으로 id state를 전달합니다.
+              onChange={handleIdChange}
             />
             <CustomTextInput placeholder={'인증번호'} />
             <EssentialInputWithTitle

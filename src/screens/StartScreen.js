@@ -10,6 +10,9 @@ const StartScreen = ({navigation}) => {
   const ProfileBtn = () => {
     navigation.navigate('MainStack', {screen: 'ProfileScreen'});
   };
+  const HomeBtn = () => {
+    navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+  };
 
   return (
     <View style={StartScreenStyle.Container}>
@@ -23,6 +26,7 @@ const StartScreen = ({navigation}) => {
         </View>
         <BottomBarButton onPress={StartButton} title={'시작하기'} />
         <BottomBarButton onPress={ProfileBtn} title={'프로필'} />
+        <BottomBarButton onPress={HomeBtn} title={'홈'} />
       </View>
     </View>
   );
