@@ -10,11 +10,7 @@ import {
 import RegisterScreenStyle from '../styles/RegisterScreenStyle';
 import EssentialInputWithTitle from '../components/AuthStack/EssentialTextInputWithTitle';
 import CustomTextInput from '../components/AuthStack/CustomTextInput';
-import BrownBarButton from '../components/AuthStack/BottomBarButton';
-import colors from '../constants/colors/colors';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
-import client from '../data/network/rest/client';
-import axios from 'axios';
 
 function RegisterScreen({navigation}) {
   const [selected, setSelected] = useState(false);
@@ -28,19 +24,8 @@ function RegisterScreen({navigation}) {
     setId(text);
   };
 
-  const registerSuccessBtn = async () => {
+  const registerSuccessBtn = () => {
     navigation.navigate('AuthStack', {screen: 'RegisterSuccessScreen'});
-    // try {
-    //   const url = 'http://localhost:3000/signup';
-    //   const data = {
-    //     hanbatEmail: 'example@hanbat.ac.kr',
-    //   };
-    //   const response = await axios.post(url, data);
-    //   console.log('POST 요청 성공:', response.data);
-    //   navigation.navigate('AuthStack', {screen: 'RegisterSuccessScreen'});
-    // } catch (error) {
-    //   console.log('POST 요청 실패:', error.message);
-    // }
   };
 
   return (
@@ -55,16 +40,18 @@ function RegisterScreen({navigation}) {
             <Text style={{marginTop: 16}}>
               @hanbat.ac.kr로 가입된 이메일만 인증번호를 받을 수 있습니다.
             </Text>
-            <EssentialInputWithTitle
-              title={'아이디'}
-              placeholder={'아이디(한밭대 구글이메일)'}
-              inputValue={id} // value 값으로 id state를 전달합니다.
-              onChange={handleIdChange}
-            />
+            <View style={{flexDirection: 'row'}}>
+              <EssentialInputWithTitle
+                title={'아이디'}
+                placeholder={'아이디(한밭대 구글이메일)'}
+                onChange={handleIdChange}
+              />
+            </View>
             <CustomTextInput placeholder={'인증번호'} />
             <EssentialInputWithTitle
               title={'비밀번호'}
               placeholder={'비밀번호'}
+              secureTextEntry={true}
             />
             <CustomTextInput placeholder={'비밀번호 확인'} />
             <EssentialInputWithTitle title={'이름'} placeholder={'이름'} />

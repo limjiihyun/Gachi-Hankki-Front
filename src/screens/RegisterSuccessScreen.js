@@ -4,7 +4,10 @@ import RegisterSuccessStyle from '../styles/RegisterSuccessStyle';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
 import colors from '../constants/colors/colors';
 
-function RegisterSuccessScreen() {
+function RegisterSuccessScreen({navigation}) {
+  const loginBtn = () => {
+    navigation.navigate('AuthStack', {screen: 'LoginScreen'});
+  };
   return (
     <>
       <View style={RegisterSuccessStyle.container}>
@@ -22,7 +25,7 @@ function RegisterSuccessScreen() {
           backgroundColor: colors.white,
           height: '15%',
         }}>
-        <BottomBarButton title={'프로필 설정하기'} />
+        <BottomBarButton title={'로그인 하러가기'} onPress={loginBtn} />
       </View>
     </>
   );

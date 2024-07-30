@@ -4,13 +4,12 @@ import colors from '../../constants/colors/colors';
 
 export default function CustomTextInput({
   inputValue,
-  onChange,
+  onChangeText,
   placeholder,
   onFocus,
   keyboardType,
+  secureTextEntry,
 }) {
-  let changeFunction = onChange;
-
   return (
     <View style={{flexDirection: 'row'}}>
       <TextInput
@@ -25,10 +24,11 @@ export default function CustomTextInput({
           marginTop: 10,
           color: colors.grey900,
         }}
-        onChangeText={changeFunction}
+        onChangeText={onChangeText}
         value={inputValue?.toString()}
         placeholder={placeholder}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
       />
     </View>
   );

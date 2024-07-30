@@ -1,17 +1,11 @@
 import React from 'react';
-import {Image, Text, TouchableOpacity, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 import StartScreenStyle from '../styles/StartScreenStyle';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
+
 const StartScreen = ({navigation}) => {
   const StartButton = () => {
     navigation.navigate('AuthStack', {screen: 'LoginScreen'});
-  };
-
-  const ProfileBtn = () => {
-    navigation.navigate('MainStack', {screen: 'ProfileScreen'});
-  };
-  const HomeBtn = () => {
-    navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
   };
 
   return (
@@ -25,8 +19,6 @@ const StartScreen = ({navigation}) => {
           <Text>같이 한끼 하실래요?</Text>
         </View>
         <BottomBarButton onPress={StartButton} title={'시작하기'} />
-        <BottomBarButton onPress={ProfileBtn} title={'프로필'} />
-        <BottomBarButton onPress={HomeBtn} title={'홈'} />
       </View>
     </View>
   );

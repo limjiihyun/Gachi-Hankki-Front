@@ -7,6 +7,9 @@ import ProfileSettingScreen from './ProfileSettingScreen';
 import colors from '../constants/colors/colors';
 import LoginScreen from './LoginScreen';
 import RegisterScreen from './RegisterScreen';
+import MapScreen from './MapScreen';
+import ChattingScreen from './ChattingScreen';
+import ProfileScreen from './ProfileScreen';
 
 export default function MainBottomScreen() {
   const Tab = createBottomTabNavigator();
@@ -21,7 +24,6 @@ export default function MainBottomScreen() {
           tabBarIconStyle: {width: 28, height: 28},
           tabBarLabelStyle: ({focused}) => {
             return {
-              //   color: focused ? '#E19E52' : '#E19E52',
               fontSize: 12,
               fontFamily: 'Pretendard',
               fontWeight: '600',
@@ -30,9 +32,9 @@ export default function MainBottomScreen() {
         })}>
         <Tab.Screen
           name="채팅"
-          component={HomeScreen}
+          component={ChattingScreen}
           options={{
-            headerShown: false,
+            headerShown: true,
             headerTitleStyle: {
               fontSize: 16,
             },
@@ -62,7 +64,7 @@ export default function MainBottomScreen() {
         />
         <Tab.Screen
           name="지도"
-          component={LoginScreen}
+          component={MapScreen}
           options={{
             headerShown: true,
             headerTitleStyle: {
@@ -126,7 +128,7 @@ export default function MainBottomScreen() {
         />
         <Tab.Screen
           name="프로필"
-          component={ProfileSettingScreen}
+          component={ProfileScreen}
           options={{
             headerShown: true,
             headerTitleStyle: {

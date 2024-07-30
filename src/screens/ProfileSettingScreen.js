@@ -1,21 +1,38 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Image, View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import ProfileSettingStyle from '../styles/ProfileSettingStyle';
 import CustomTextInput from '../components/AuthStack/CustomTextInput';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CHARACTER_IMAGE from '../constants/data/character-image';
+import {
+  setIntroduce,
+  setProfileName,
+} from '../redux/slices/user-slice';
 
 function ProfileSettingScreen({navigation}) {
+  const dispatch = useDispatch();
+  const [name, setName] = useState('');
+  const [hi, setHi] = useState('');
+
   const editProfileImageBtn = () => {
     navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
   };
   const userSlice = useSelector(state => state.user.characterImages);
+  console.log('??', userSlice);
   const selectedImage = CHARACTER_IMAGE.find(item => item.id === userSlice.id);
 
   const imageSource = selectedImage
     ? selectedImage.src
     : require('../assets/character/1.png');
+
+  const handleStartButtonPress = () => {
+    dispatch(setProfileName(name));
+    dispatch(setIntroduce(hi));
+    navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+  };
+  const userSliceAll = useSelector(state => state.user);
+  console.log('??222', userSliceAll.characterImages.id);
 
   return (
     <View style={{flex: 1}}>
@@ -40,14 +57,23 @@ function ProfileSettingScreen({navigation}) {
             <Text style={ProfileSettingStyle.titleText}>
               프로필 이름을 설정해주세요!
             </Text>
-            <CustomTextInput placeholder={'프로필 이름'} />
+            <CustomTextInput
+              placeholder={'프로필 이름'}
+              onChangeText={setName}
+            />
             <Text style={ProfileSettingStyle.titleText}>
               나를 한줄로 소개해 보세요!
             </Text>
-            <CustomTextInput placeholder={'한줄 소개 작성'} />
+            <CustomTextInput
+              placeholder={'한줄 소개 작성'}
+              onChangeText={setHi}
+            />
           </View>
           <View style={ProfileSettingStyle.bottomBarContainer}>
-            <BottomBarButton title={'시작하기'} />
+            <BottomBarButton
+              title={'시작하기'}
+              onPress={handleStartButtonPress}
+            />
           </View>
         </View>
       </ScrollView>

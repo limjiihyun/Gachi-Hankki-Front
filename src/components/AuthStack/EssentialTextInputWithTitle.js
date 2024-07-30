@@ -10,7 +10,7 @@ export default function EssentialInputWithTitle({
   onChange,
   onFocus,
   keyboardType,
-  marginTop,
+  secureTextEntry
 }) {
   return (
     <>
@@ -22,6 +22,7 @@ export default function EssentialInputWithTitle({
           onChange={onChange}
           onFocus={onFocus}
           keyboardType={keyboardType}
+          secureTextEntry={secureTextEntry}
         />
       </View>
     </>

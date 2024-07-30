@@ -48,6 +48,31 @@ const CreatePostStyle = StyleSheet.create({
     fontWeight: '500',
     marginTop: 20,
   },
+  dateImageContainer: {
+    width: '100%',
+    height: 48,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: colors.grey300,
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  dateImage: {
+    width: 25,
+    height: 25,
+    margin: 12,
+  },
+  dateText: {
+    marginTop: 12,
+  },
+  threeColumnContainer: {
+    width: '32%',
+    height: 50,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
 });
 
 export default CreatePostStyle;

@@ -10,6 +10,7 @@ const ProfileSettingStyle = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     marginTop: '10%',
+    marginHorizontal: 16,
   },
   imageBorder: {
     borderRadius: 10,
