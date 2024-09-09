@@ -49,7 +49,7 @@ const CreatePostStyle = StyleSheet.create({
     marginTop: 20,
   },
   dateImageContainer: {
-    width: '100%',
+    width: '48%',
     height: 48,
     borderWidth: 1,
     borderRadius: 10,

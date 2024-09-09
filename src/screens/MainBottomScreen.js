@@ -10,10 +10,35 @@ import RegisterScreen from './RegisterScreen';
 import MapScreen from './MapScreen';
 import ChattingScreen from './ChattingScreen';
 import ProfileScreen from './ProfileScreen';
+import {useDispatch} from 'react-redux';
+import {
+  setCharacterImages,
+  setDepartment,
+  setProfileBio,
+  setProfileNickname,
+} from '../redux/slices/user-slice';
+import client from '../data/network/rest/client';
 
 export default function MainBottomScreen() {
   const Tab = createBottomTabNavigator();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchGets = async () => {
+      try {
+        const response = await client.users.getProfile();
+        console.log('프로필 가져오기', response.data);
+        dispatch(setCharacterImages(response.data.profileImageNumber));
+        dispatch(setProfileNickname(response.data.nickname));
+        dispatch(setProfileBio(response.data.bio));
+        dispatch(setDepartment(response.data.department));
+      } catch (error) {
+        console.log('프로필가져오기 실패:', error.message);
+      }
+    };
+    fetchGets();
+  }, []);
 
   return (
     <View style={{height: '100%'}}>

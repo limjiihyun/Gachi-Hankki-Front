@@ -13,8 +13,10 @@ const colors = {
   grey200: '#E4E4EA',
   grey100: '#EBEBF0',
   grey050: '#F8F8FC',
+  grey001: '#F2F2F2',
   white: '#FFFFFF',
   kakaoLoginColor: '#FEE500',
+  black: '#262626',
 };
 
 export default colors;

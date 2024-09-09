@@ -6,25 +6,23 @@ import {View} from 'react-native';
 export default function EssentialInputWithTitle({
   title,
   placeholder,
-  inputValue,
-  onChange,
+  value,
+  onChangeText,
   onFocus,
   keyboardType,
-  secureTextEntry
+  secureTextEntry,
 }) {
   return (
     <>
-      <View style={{marginTop: 20}}>
         <TitleWithRequiredText title={title} />
         <CustomTextInput
           placeholder={placeholder}
-          inputValue={inputValue}
-          onChange={onChange}
+          value={value}
+          onChangeText={onChangeText}
           onFocus={onFocus}
           keyboardType={keyboardType}
           secureTextEntry={secureTextEntry}
         />
-      </View>
     </>
   );
 }

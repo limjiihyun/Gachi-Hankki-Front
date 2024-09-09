@@ -21,6 +21,26 @@ const RegisterScreenStyle = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
   },
+  button: {
+    backgroundColor: colors.grey001,
+    borderRadius: 10,
+    height: '78%',
+    marginTop: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  buttonText: {
+    color: colors.black,
+    fontSize: 14,
+  },
+  twoColumnContainer: {
+    width: '49%',
+    height: 50,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+  },
 });
 
 export default RegisterScreenStyle;

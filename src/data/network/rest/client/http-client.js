@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {navigate} from '../../../../navigation/AppStackNavigation';
 
 export const Axios = axios.create({
-  baseURL: 'http://192.168.0.185:3000/',
+  baseURL: 'http://172.17.130.246:3000/',
+  //baseURL: 'http://192.168.219.100:3000/', //집
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -42,6 +43,7 @@ Axios.interceptors.request.use(async config => {
     config.headers.Authorization === undefined
   ) {
     const value = await AsyncStorage.getItem('AccessToken');
+    console.log('뺏었당', value);
     if (value) {
       const accessToken = value;
       if (accessToken) {
@@ -77,7 +79,6 @@ Axios.interceptors.response.use(
         } catch (refreshError) {
           isRefreshing = false;
           await setAuthToken(null);
-          navigate('AuthStack', {screen: 'LoginScreen'});
           returnAxios = await Promise.reject(refreshError);
         } finally {
         }
@@ -122,12 +123,13 @@ async function refreshTokenRequest() {
 
 export const setAuthToken = async token => {
   if (token) {
-    await AsyncStorage.setItem('AccessToken', token.access);
-    await AsyncStorage.setItem('RefreshToken', token.refresh);
-    Axios.defaults.headers.common.Authorization = `Bearer ${token.access}`;
+    await AsyncStorage.setItem('AccessToken', token);
+    console.log('스토리지 토큰 적립');
+    // await AsyncStorage.setItem('RefreshToken', token.refresh);
+    Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
   } else {
     await AsyncStorage.removeItem('AccessToken');
-    await AsyncStorage.removeItem('RefreshToken');
+    // await AsyncStorage.removeItem('RefreshToken');
     delete Axios.defaults.headers.common.Authorization;
   }
 };

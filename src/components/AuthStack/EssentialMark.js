@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput} from 'react-native';
-import colors from '../../constants/colors/colors';
 
 export default function EssentialMark() {
   return (

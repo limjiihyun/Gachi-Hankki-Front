@@ -6,11 +6,11 @@ import {setCharacterImages} from '../redux/slices/user-slice';
 import CHARACTER_IMAGE from '../constants/data/character-image';
 
 function SelectIconScreen({navigation}) {
-  const dispatch = useDispatch();
-
   const selectCharacterIcon = icon => {
-    dispatch(setCharacterImages(icon));
-    navigation.navigate('MainStack', {screen: 'ProfileSettingScreen'});
+    navigation.navigate('MainStack', {
+      screen: 'ProfileSettingScreen',
+      params: {selectedIcon: icon},
+    });
   };
 
   const renderShapeItem = ({item}) => {

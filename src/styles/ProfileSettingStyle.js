@@ -37,6 +37,7 @@ const ProfileSettingStyle = StyleSheet.create({
     margin: 14,
     fontWeight: '700',
     color: colors.grey010,
+    fontSize: 16,
   },
   contentContainer: {
     flex: 1,
@@ -51,6 +52,16 @@ const ProfileSettingStyle = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: colors.white,
     paddingBottom: 20,
+  },
+  nameText: {
+    borderWidth: 1,
+    borderColor: colors.grey300,
+    padding: 10,
+    width: '100%',
+    borderRadius: 10,
+    marginTop: 10,
+    color: colors.grey900,
+    fontSize: 16,
   },
 });
 

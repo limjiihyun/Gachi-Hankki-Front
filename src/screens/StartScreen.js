@@ -8,6 +8,10 @@ const StartScreen = ({navigation}) => {
     navigation.navigate('AuthStack', {screen: 'LoginScreen'});
   };
 
+  const MainButton = () => {
+    navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+  };
+
   return (
     <View style={StartScreenStyle.Container}>
       <View style={StartScreenStyle.LogoContainer}>
@@ -19,6 +23,7 @@ const StartScreen = ({navigation}) => {
           <Text>같이 한끼 하실래요?</Text>
         </View>
         <BottomBarButton onPress={StartButton} title={'시작하기'} />
+        <BottomBarButton onPress={MainButton} title={'메인화면'} />
       </View>
     </View>
   );

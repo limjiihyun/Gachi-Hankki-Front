@@ -9,6 +9,7 @@ import CreatePostScreen from '../screens/CreatePostScreen';
 import ChattingScreen from '../screens/ChattingScreen';
 import MapScreen from '../screens/MapScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import PostDetailScreen from '../screens/PostDetailScreen';
 
 export default function MainStackNavigation() {
   const MainStack = createNativeStackNavigator();
@@ -110,6 +111,27 @@ export default function MainStackNavigation() {
         <MainStack.Screen
           name="CreatePostScreen"
           component={CreatePostScreen}
+          options={({navigation}) => ({
+            headerBackVisible: false,
+            headerLeft: () => (
+              <TouchableOpacity
+                style={HeaderStyle.goBackButtonTouch}
+                onPress={() => navigation.goBack()}>
+                <Image
+                  style={HeaderStyle.headerImage}
+                  source={require('../assets/header-left-back-button.png')}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitleAlign: 'center',
+            headerTitle: () => (
+              <Text style={HeaderStyle.headerTitleText}>글 작성</Text>
+            ),
+          })}
+        />
+        <MainStack.Screen
+          name="PostDetailScreen"
+          component={PostDetailScreen}
           options={({navigation}) => ({
             headerBackVisible: false,
             headerLeft: () => (

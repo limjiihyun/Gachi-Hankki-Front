@@ -1,0 +1,21 @@
+[debug] [2024-08-06T14:56:34.001Z] ----------------------------------------------------------------------
+[debug] [2024-08-06T14:56:34.010Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\dlawl\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2024-08-06T14:56:34.011Z] CLI Version:   13.15.0
+[debug] [2024-08-06T14:56:34.011Z] Platform:      win32
+[debug] [2024-08-06T14:56:34.012Z] Node Version:  v20.11.1
+[debug] [2024-08-06T14:56:34.012Z] Time:          Tue Aug 06 2024 23:56:34 GMT+0900 (대한민국 표준시)
+[debug] [2024-08-06T14:56:34.013Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-08-06T14:56:34.030Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-08-06T14:56:34.031Z] > authorizing via signed-in user (limjihyun386@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\dlawl\ReactNative\GachiHankkiProject\GachiHankkiProject
+
