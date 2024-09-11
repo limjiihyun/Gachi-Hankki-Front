@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import HomeStyle from '../styles/HomeStyle';
 import Client from '../data/network/rest/client';
+import colors from '../constants/colors/colors';
+import {timeSince} from '../utils/timeSince';
 
 function HomeScreen({navigation}) {
   const CreatePost = () => {
@@ -51,28 +53,7 @@ function HomeScreen({navigation}) {
     setRefreshing(false); // Stop the refreshing animation
   };
 
-  // 게시물 작성 시간이 몇 시간, 며칠 전인지 계산하는 함수
-  const timeSince = postDate => {
-    const now = new Date(); // 현재 시간
-    const postTime = new Date(postDate); // 게시물 작성 시간
-
-    const timeDiff = now - postTime; // 시간 차이 (밀리초 단위)
-    const minutes = Math.floor(timeDiff / (1000 * 60)); // 분 단위로 변환
-    const hours = Math.floor(timeDiff / (1000 * 60 * 60)); // 시간 단위로 변환
-    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24)); // 일 단위로 변환
-
-    if (days > 0) {
-      // 24시간이 넘으면 일 단위로 표시
-      return `${days}일 전`;
-    } else if (hours > 0) {
-      // 1시간 이상 24시간 미만이면 시간 단위로 표시
-      return `${hours}시간 전`;
-    } else {
-      // 1시간 미만이면 분 단위로 표시
-      return `${minutes}분 전`;
-    }
-  };
-
+ 
   const renderPost = ({item}) => {
     const defaultImage = require('../assets/character/1.png');
 
@@ -86,27 +67,42 @@ function HomeScreen({navigation}) {
         onPress={() => navigation.navigate('PostDetailScreen', {post: item})}
         style={HomeStyle.postContainer}>
         <View style={{flexDirection: 'row'}}>
-          <View style={{flexDirection: 'column', width: '69%'}}>
-            <Text style={HomeStyle.postTitle}>
-              {item.RestaurantName} / {item.PromiseDate} / {item.PromiseTime}
-            </Text>
-            <Text style={HomeStyle.postContent}>{item.PostContent}</Text>
-            <Text>
-              {timeSince(item.PostDate)} {/* 작성된 시간 표시 */}
-            </Text>
-          </View>
           <Image
             source={imageUrl}
-            style={{width: 100, height: 80, borderRadius: 6, marginTop: 5}}
+            style={{width: 120, height: 120, borderRadius: 6}}
             resizeMode="cover"
           />
+          <View
+            style={{flexDirection: 'column', width: '65%', marginLeft: '4%'}}>
+            <Text style={HomeStyle.postTitle}>{item.RestaurantName}</Text>
+            <View style={{flexDirection: 'row', marginTop: '2%'}}>
+              <Text style={HomeStyle.postServe}>
+                날짜 : {item.PromiseDate} /
+              </Text>
+              <Text style={HomeStyle.postServe}>시간 : {item.PromiseTime}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                marginTop: '10%',
+              }}>
+              <Text style={HomeStyle.postDetail}>
+                {item.NumberOfParticipants}명 모집
+              </Text>
+              <Text style={HomeStyle.postDetail}>{item.PatMethod}</Text>
+            </View>
+          </View>
         </View>
-        <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
-          <Text style={HomeStyle.postDetail}>{item.RestaurantName}</Text>
-          <Text style={HomeStyle.postDetail}>
-            {item.NumberOfParticipants}명 모집
+        <View style={{alignItems: 'flex-end'}}>
+          <Text
+            style={{
+              color: 'grey',
+              fontSize: 12,
+              color: colors.grey500,
+            }}>
+            {timeSince(item.PostDate)}
           </Text>
-          <Text style={HomeStyle.postDetail}>{item.PatMethod}</Text>
         </View>
       </TouchableOpacity>
     );

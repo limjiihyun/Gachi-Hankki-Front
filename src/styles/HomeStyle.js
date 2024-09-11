@@ -42,17 +42,22 @@ const HomeStyle = StyleSheet.create({
   },
   postContainer: {
     marginHorizontal: 16,
-    padding: 15,
+    padding: 10,
     borderWidth: 1,
-    marginVertical: 5,
     borderColor: colors.grey300,
     borderRadius: 8,
     marginTop: 10,
   },
   postTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 'bold',
     color: colors.grey010,
+    marginRight: 5,
+    marginTop: 10,
+  },
+  postServe: {
+    fontSize: 12,
+    color: colors.grey500,
     marginRight: 5,
   },
   postContent: {
@@ -62,16 +67,16 @@ const HomeStyle = StyleSheet.create({
     marginTop: 15,
   },
   postDetail: {
-    width: 100,
+    width: 80,
     height: 30,
     fontSize: 12,
     padding: 5,
     backgroundColor: colors.grey200,
-    margin: 5,
+    marginLeft: '2%',
     borderRadius: 8,
     justifyContent: 'center',
-    textAlign: 'center', 
-    textAlignVertical: 'center', 
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   listContent: {
     paddingBottom: 100, // 플로팅 버튼에 의해 가려지지 않도록 여유 공간 추가

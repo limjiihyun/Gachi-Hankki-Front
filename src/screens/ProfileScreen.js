@@ -3,9 +3,9 @@ import {Image, View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import ProfileSettingStyle from '../styles/ProfileSettingStyle';
 import {useDispatch, useSelector} from 'react-redux';
 import CHARACTER_IMAGE from '../constants/data/character-image';
-import {setIntroduce, setProfileName} from '../redux/slices/user-slice';
 import colors from '../constants/colors/colors';
 import {setProfileSettingNavigation} from '../redux/slices/navigation-source-slice';
+import HorizontalLine from '../components/HorizontalLine';
 
 function ProfileScreen({navigation}) {
   const dispatch = useDispatch();
@@ -63,6 +63,7 @@ function ProfileScreen({navigation}) {
                 backgroundColor: '#EFE4D8',
                 borderRadius: 12,
                 marginTop: 20,
+                marginBottom: 20,
                 paddingHorizontal: 16,
               }}>
               <Text
@@ -83,14 +84,7 @@ function ProfileScreen({navigation}) {
                 {userSlice.profileBio}
               </Text>
             </View>
-            <View
-              style={{
-                width: '100%',
-                height: 1,
-                backgroundColor: colors.grey300,
-                marginTop: 25,
-              }}
-            />
+            <HorizontalLine />
             <View
               style={{
                 flexDirection: 'row',

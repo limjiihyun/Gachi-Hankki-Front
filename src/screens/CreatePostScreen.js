@@ -20,7 +20,7 @@ function CreatePostScreen({navigation}) {
   now.setMinutes(0, 0, 0); // 분, 초, 밀리초를 0으로 설정
   const [promiseTime, setPromiseTime] = useState(now);
   const [timeSelectOpen, setTimeSelectOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('더치페이'); // 기본값 설정
   const [numberOfPeople, setNumberOfPeople] = useState('');
   const [postContent, setPostContent] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
@@ -78,7 +78,7 @@ function CreatePostScreen({navigation}) {
     return time.toTimeString().split(' ')[0].slice(0, 5);
   };
 
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(1);
 
   const options = [
     {id: 1, label: '더치페이'},
@@ -87,8 +87,8 @@ function CreatePostScreen({navigation}) {
   ];
 
   const userSliceAll = useSelector(state => state.user);
-  const [isDateNoneSelected, setIsDateNoneSelected] = useState(false); // 날짜 "상관없음" 선택 여부
-  const [isTimeNoneSelected, setIsTimeNoneSelected] = useState(false); // 시간 "상관없음" 선택 여부
+  const [isDateNoneSelected, setIsDateNoneSelected] = useState(true); // 날짜 "상관없음" 선택 여부
+  const [isTimeNoneSelected, setIsTimeNoneSelected] = useState(true); // 시간 "상관없음" 선택 여부
   const [isDatePickerSelected, setIsDatePickerSelected] = useState(false); // DatePicker가 선택되었는지 여부
   const [isTimePickerSelected, setIsTimePickerSelected] = useState(false); // TimePicker가 선택되었는지 여부
 
@@ -96,8 +96,18 @@ function CreatePostScreen({navigation}) {
     const formData = new FormData();
     formData.append('PostTitle', postTitle);
     formData.append('RestaurantName', restaurantName);
-    formData.append('PromiseDate', formatDate(promiseDate));
-    formData.append('PromiseTime', formatTime(promiseTime));
+    // 날짜와 시간대 처리
+    if (isDateNoneSelected) {
+      formData.append('PromiseDate', '상관없음');
+    } else {
+      formData.append('PromiseDate', formatDate(promiseDate));
+    }
+
+    if (isTimeNoneSelected) {
+      formData.append('PromiseTime', '상관없음');
+    } else {
+      formData.append('PromiseTime', formatTime(promiseTime));
+    }
     formData.append('PatMethod', paymentMethod);
     formData.append('NumberOfParticipants', numberOfPeople);
     formData.append('PostContent', postContent);
@@ -112,27 +122,6 @@ function CreatePostScreen({navigation}) {
         type: selectedImage.type, // 이미지 타입
       });
     }
-
-    const postData = {
-      PostTitle: postTitle,
-      RestaurantName: restaurantName,
-      PromiseDate: formatDate(promiseDate),
-      PromiseTime: formatTime(promiseTime),
-      PatMethod: paymentMethod,
-      NumberOfParticipants: numberOfPeople,
-      PostContent: postContent,
-    };
-    console.log(
-      '포스트 하려는거',
-      postTitle,
-      restaurantName,
-      formatDate(promiseDate),
-      formatTime(promiseTime),
-      paymentMethod,
-      numberOfPeople,
-      postContent,
-      selectedImage.name,
-    );
 
     try {
       const response = await Client.users.createBoard(formData, {
@@ -267,55 +256,64 @@ function CreatePostScreen({navigation}) {
 
         {/* 원하는 시간 UI */}
         <Text style={CreatePostStyle.titleText}>원하는 시간대</Text>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <CheckBox
-            value={isTimeNoneChecked}
-            onValueChange={setIsTimeNoneChecked}
-            tintColors={{true: colors.brown, false: colors.grey400}} // 체크 색상 설정
-          />
-          <Text style={CreatePostStyle.checkboxText}>상관없음</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <TouchableOpacity
+            style={[
+              {
+                flexDirection: 'row',
+                width: '48%',
+                height: 48,
+                alignItems: 'center',
+                borderWidth: 1,
+                borderRadius: 10,
+                justifyContent: 'center',
+                marginTop: 12,
+              },
+              {borderColor: isTimeNoneSelected ? colors.brown : colors.grey300}, // 선택에 따른 테두리 색상 변경
+            ]}
+            onPress={() => {
+              setIsTimePickerSelected(false); // DatePicker 선택 시
+              setIsTimeNoneSelected(true); // "상관없음" 선택 해제
+            }} // "상관없음"을 선택할 때 상태 변경
+          >
+            <Text
+              style={[
+                CreatePostStyle.checkboxText,
+                {color: isTimeNoneSelected ? colors.brown : colors.grey400}, // 선택에 따른 텍스트 색상 변경
+              ]}>
+              상관없음
+            </Text>
+          </TouchableOpacity>
+          {/* 시간 선택 UI */}
+          <TouchableOpacity
+            style={[
+              CreatePostStyle.dateImageContainer,
+              {
+                borderColor: isTimePickerSelected
+                  ? colors.brown
+                  : colors.grey300, // DatePicker 선택에 따라 테두리 색상 변경
+              },
+            ]}
+            onPress={() => {
+              setTimeSelectOpen(true);
+              setIsTimePickerSelected(true); // DatePicker 선택 시
+              setIsTimeNoneSelected(false); // "상관없음" 선택 해제
+            }}>
+            <View style={{flexDirection: 'row'}}>
+              <Image
+                source={require('../assets/date-range.png')}
+                style={CreatePostStyle.dateImage}
+              />
+              <Text
+                style={[
+                  CreatePostStyle.dateText,
+                  {color: isTimePickerSelected ? colors.brown : colors.grey400}, // DatePicker 선택에 따라 텍스트 색상 변경
+                ]}>
+                {formatTime(promiseTime)}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
-        {/* <TouchableOpacity
-          style={CreatePostStyle.dateImageContainer}
-          onPress={() => setDateSelectOpen(true)}>
-          <View style={{flexDirection: 'row'}}>
-            <Image
-              source={require('../assets/date-range.png')}
-              style={CreatePostStyle.dateImage}
-            />
-            <Text style={CreatePostStyle.dateText}>
-              {formatDate(promiseDate)}
-            </Text>
-          </View>
-        </TouchableOpacity>
-        <DatePicker
-          modal
-          open={dateSelectOpen}
-          date={promiseDate}
-          mode="date"
-          minimumDate={new Date()}
-          onConfirm={promiseDate => {
-            setDateSelectOpen(false);
-            setPromiseDate(promiseDate);
-          }}
-          onCancel={() => {
-            setDateSelectOpen(false);
-          }}
-        /> */}
-        <Text style={CreatePostStyle.titleText}>원하는 시간대</Text>
-        <TouchableOpacity
-          style={CreatePostStyle.dateImageContainer}
-          onPress={() => setTimeSelectOpen(true)}>
-          <View style={{flexDirection: 'row'}}>
-            <Image
-              source={require('../assets/date-range.png')}
-              style={CreatePostStyle.dateImage}
-            />
-            <Text style={CreatePostStyle.dateText}>
-              {formatTime(promiseTime)}
-            </Text>
-          </View>
-        </TouchableOpacity>
         <DatePicker
           modal
           open={timeSelectOpen}

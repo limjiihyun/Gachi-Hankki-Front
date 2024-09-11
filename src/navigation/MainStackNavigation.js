@@ -10,6 +10,7 @@ import ChattingScreen from '../screens/ChattingScreen';
 import MapScreen from '../screens/MapScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PostDetailScreen from '../screens/PostDetailScreen';
+import CommentDetailScreen from '../screens/CommentDetail';
 
 export default function MainStackNavigation() {
   const MainStack = createNativeStackNavigator();
@@ -146,7 +147,28 @@ export default function MainStackNavigation() {
             ),
             headerTitleAlign: 'center',
             headerTitle: () => (
-              <Text style={HeaderStyle.headerTitleText}>글 작성</Text>
+              <Text style={HeaderStyle.headerTitleText}>글 보기</Text>
+            ),
+          })}
+        />
+        <MainStack.Screen
+          name="CommentDetailScreen"
+          component={CommentDetailScreen}
+          options={({navigation}) => ({
+            headerBackVisible: false,
+            headerLeft: () => (
+              <TouchableOpacity
+                style={HeaderStyle.goBackButtonTouch}
+                onPress={() => navigation.goBack()}>
+                <Image
+                  style={HeaderStyle.headerImage}
+                  source={require('../assets/header-left-back-button.png')}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitleAlign: 'center',
+            headerTitle: () => (
+              <Text style={HeaderStyle.headerTitleText}>프로필 조회</Text>
             ),
           })}
         />
