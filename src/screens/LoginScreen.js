@@ -44,30 +44,38 @@ function LoginScreen({navigation}) {
         console.log('POST 요청 성공:', response.data);
         setAuthToken(response.data.accessToken);
         try {
-          const existingProfileResponse = await Client.users.getProfile(); // Replace with actual API call
-          console.log('안녕하세용', existingProfileResponse.data);
-          if (
-            existingProfileResponse &&
-            existingProfileResponse.status === 200
-          ) {
+          const existingProfileResponse = await Client.users.getProfile();
+          if (existingProfileResponse && existingProfileResponse.data) {
             console.log('Profile exists, navigating to main screen.');
-            // dispatch(
-            //   setCharacterImages(
-            //     existingProfileResponse.data.profileImageNumber,
-            //   ),
-            // );
-            // dispatch(setProfileNickname(existingProfileResponse.data.nickname));
-            // dispatch(setProfileBio(existingProfileResponse.data.bio));
-            // dispatch(setDepartment(existingProfileResponse.data.department));
+
+            // Profile 데이터가 존재할 때 추가 처리
+            dispatch(
+              setCharacterImages(
+                existingProfileResponse.data.profileImageNumber,
+              ),
+            );
+            dispatch(setProfileNickname(existingProfileResponse.data.nickname));
+            dispatch(setProfileBio(existingProfileResponse.data.bio));
+            dispatch(setDepartment(existingProfileResponse.data.department));
+
             navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+          } else {
+            // Profile이 없을 경우 처리
+            console.log(
+              'Profile does not exist, navigating to SelectIconScreen.',
+            );
+            navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
           }
         } catch (error) {
-          console.log('Error checking profile: ', error);
-          navigation.navigate('MainStack', {screen: 'ProfileSettingScreen'});
+          console.log(
+            'Error checking profile: ',
+            error.response?.data || error.message,
+          );
+          navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
         }
       }
     } catch (error) {
-      console.log('POST요청 실패: ', error.message);
+      console.log('POST요청 실패: ??', error.message);
     }
   };
 

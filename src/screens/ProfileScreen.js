@@ -85,12 +85,14 @@ function ProfileScreen({navigation}) {
               </Text>
             </View>
             <HorizontalLine />
-            <View
+            <TouchableOpacity
+              onPress={editProfileImageBtn}
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 width: '100%',
+                marginTop: 10,
               }}>
               <TouchableOpacity
                 onPress={editProfileImageBtn}
@@ -111,7 +113,7 @@ function ProfileScreen({navigation}) {
                 source={require('../assets/right-arrow-button.png')}
                 style={{width: 12, height: 17}}
               />
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

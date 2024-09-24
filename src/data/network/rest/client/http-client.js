@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {navigate} from '../../../../navigation/AppStackNavigation';
 
 export const Axios = axios.create({
-  baseURL: 'http://172.22.10.152:3000/',
-  //baseURL: 'http://192.168.219.114:3000/', //집
+  //baseURL: 'http://localhost:3000/',
+  baseURL: 'http://192.168.219.189:3000/', //집
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -156,6 +156,13 @@ export class HttpClient {
 
   static async post(url, data, options) {
     const response = await Axios.post(url, data, {
+      ...options,
+    });
+    return response;
+  }
+
+  static async patch(url, data, options) {
+    const response = await Axios.patch(url, data, {
       ...options,
     });
     return response;

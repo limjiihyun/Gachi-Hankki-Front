@@ -3,25 +3,53 @@ import {View, Text, TextInput, Button, Alert} from 'react-native';
 import client from '../data/network/rest/client';
 
 const ChattingScreen = ({navigation}) => {
-  const [members, setMembers] = useState(''); // 멤버를 입력하는 상태 변수
+  const [members, setMembers] = useState('');
 
   // 방 생성 함수
   const createRoom = async () => {
+    const senderNickname = '핑크';
+
+    console.log('??', members);
     try {
       const response = await client.users.createChattingRoom({
-        members: members.split(','), // 멤버를 배열 형태로 전송
+        senderNickname: senderNickname, // 발신자 닉네임 추가
+        receiverNickname: members.split(','), // 수신자의 닉네임
       });
 
       if (response.data.success) {
-        Alert.alert('Success', 'Chat room created successfully!', [
-          {text: 'OK'},
+        const roomId = response.data.roomId;
+        console.log('채팅방 만들어질 때', roomId);
+        Alert.alert('Success', 'Chat room created or retrieved successfully!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('ChatRoomScreen', {roomId}),
+          },
         ]);
       } else {
-        Alert.alert('Error', 'Failed to create chat room');
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to create or retrieve chat room',
+        );
       }
     } catch (error) {
-      console.error('Error creating chat room:', error);
-      Alert.alert('Error', 'An error occurred while creating the chat room');
+      // Axios 에러 객체에서 추가 정보를 출력
+      if (error.response) {
+        // 서버 응답이 있을 경우
+        console.error('Response error:', error.response.data);
+        Alert.alert(
+          'Error',
+          error.response.data.message ||
+            'Error creating or retrieving chat room',
+        );
+      } else if (error.request) {
+        // 요청이 서버에 도달했으나 응답이 없을 경우
+        console.error('Request error:', error.request);
+        Alert.alert('Error', 'No response received from server');
+      } else {
+        // 요청을 생성하는 중에 에러가 발생했을 경우
+        console.error('Axios error:', error.message);
+        Alert.alert('Error', 'An error occurred while setting up the request');
+      }
     }
   };
 

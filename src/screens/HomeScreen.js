@@ -21,7 +21,7 @@ function HomeScreen({navigation}) {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState('최신순');
   const [posts, setPosts] = useState([]);
-  const [refreshing, setRefreshing] = useState(false); // Track refreshing state
+  const [refreshing, setRefreshing] = useState(false);
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
@@ -36,7 +36,6 @@ function HomeScreen({navigation}) {
     try {
       const response = await Client.users.getBoard();
       setPosts(response.data);
-      console.log('게시물 목록', response.data);
     } catch (error) {
       console.log('GET 요청 실패:', error.message);
       Alert.alert('Error', 'GET 요청 실패:home ' + error.message);
@@ -44,16 +43,15 @@ function HomeScreen({navigation}) {
   };
 
   useEffect(() => {
-    fetchPosts(); // Fetch posts on initial render
+    fetchPosts(); 
   }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts(); // Fetch new data
-    setRefreshing(false); // Stop the refreshing animation
+    await fetchPosts(); 
+    setRefreshing(false); 
   };
 
- 
   const renderPost = ({item}) => {
     const defaultImage = require('../assets/character/1.png');
 

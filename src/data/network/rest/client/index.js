@@ -1,14 +1,12 @@
 import {HttpClient} from './http-client';
-import {API_ENDPOINTS, getProfileEndpoint} from './api-endpoint';
+import {API_ENDPOINTS} from './api-endpoint';
 
 class Client {
   users = {
     login: async userData => {
       const response = await HttpClient.post(API_ENDPOINTS.LOGIN, userData);
       if (response.status === 200) {
-        console.log('굳굳', response.data.accessToken);
         await HttpClient.setAuthorization(response.data.accessToken);
-        console.log('헤더 ㅎㅇ');
       }
       return response;
     },
@@ -36,9 +34,35 @@ class Client {
       }
     },
     getProfile: async data => HttpClient.get(API_ENDPOINTS.PROFILE, data),
+    patchProfileImage: async data =>
+      HttpClient.patch(API_ENDPOINTS.PATCH_PROFILE_IMAGE, data),
+    patchProfileBio: async data =>
+      HttpClient.patch(API_ENDPOINTS.PATCH_PROFILE_BIO, data),
     createChattingRoom: async data =>
       HttpClient.post(API_ENDPOINTS.CREATE_CHATTING_ROOM, data),
+    // 메시지 보내기 API
+    sendMessage: async (roomId, senderNickname, text) =>
+      HttpClient.post(`${API_ENDPOINTS.SEND_MESSAGE}/${roomId}/messages`, {
+        senderNickname,
+        text,
+      }),
 
+    // 특정 방의 메시지 불러오기 API
+    getMessages: async roomId =>
+      HttpClient.get(`${API_ENDPOINTS.GET_MESSAGES}/${roomId}/messages`),
+
+    // // 메시지 보내기 API
+    // sendMessage: async (roomId, message) =>
+    //   HttpClient.post(
+    //     `${API_ENDPOINTS.CREATE_CHATTING_ROOM}/${roomId}/messages`,
+    //     {message},
+    //   ),
+
+    // // 특정 방의 메시지 불러오기 API
+    // getMessages: async roomId =>
+    //   HttpClient.get(
+    //     `${API_ENDPOINTS.CREATE_CHATTING_ROOM}/${roomId}/messages`,
+    //   ),
     addComment: async (postId, commentData) => {
       try {
         const response = await HttpClient.post(

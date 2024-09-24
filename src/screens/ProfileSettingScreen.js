@@ -13,21 +13,19 @@ import {
   setProfileNickname,
 } from '../redux/slices/user-slice';
 import Client from '../data/network/rest/client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function ProfileSettingScreen({navigation, route}) {
   const userSlice = useSelector(state => state.user);
   const dispatch = useDispatch();
-  const [name, setName] = useState(userSlice.profileNickname || ''); // Default to profileNickname if available
+  const [name, setName] = useState(userSlice.profileNickname || '');
   const [hi, setHi] = useState('');
   const {selectedIcon} = route.params;
-  console.log('안녕', name);
   const editProfileImageBtn = () => {
     navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
   };
   const navigationSourceSlice = useSelector(
     state => state.navigationSource.profileSettingNavigation,
-  ); // Get navigation state from Redux
+  );
 
   const selectedImage = CHARACTER_IMAGE.find(
     item => item.id === selectedIcon.id,
@@ -37,39 +35,49 @@ function ProfileSettingScreen({navigation, route}) {
     ? selectedImage.src
     : require('../assets/character/1.png');
 
-  // handleStartButtonPress에서 createProfile 호출
   const handleStartButtonPress = async () => {
     console.log('프로필 정보:', name, hi, imageSource);
 
     try {
-      const response = await Client.users.createProfile({
-        nickname: name,
-        bio: hi,
-        profileImageNumber: imageSource,
-      });
+      let response;
+
+      if (navigationSourceSlice) {
+        // navigationSourceSlice가 true일 때 patchProfile 호출
+        let responseBio = await Client.users.patchProfileBio({
+          bio: hi,
+        });
+        let responseImage = await Client.users.patchProfileImage({
+          profileImageNumber: imageSource,
+        });
+        console.log(
+          'Profile updated successfully:',
+          responseBio,
+          responseImage,
+        );
+      } else {
+        // navigationSourceSlice가 false일 때 createProfile 호출
+        response = await Client.users.createProfile({
+          nickname: name,
+          bio: hi,
+          profileImageNumber: imageSource,
+        });
+        console.log('Profile created successfully:', response);
+      }
 
       // 응답이 있는지 확인
-      console.log('Profile sent successfully:', response);
       if (response) {
-        console.log('Response data:', response.data); // 데이터가 있는 경우
+        console.log('Response data:', response.data);
       }
 
       // Redux state 업데이트
       dispatch(setCharacterImages(imageSource));
       dispatch(setProfileNickname(name));
       dispatch(setProfileBio(hi));
+
+      // 메인 화면으로 이동
       navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
     } catch (error) {
-      if (error.response) {
-        console.log('Response data:', error.response.data);
-        console.log('Response status:', error.response.status);
-        console.log('Response headers:', error.response.headers);
-      } else if (error.request) {
-        console.log('Request data:', error.request);
-      } else {
-        console.log('Error message:', error.message);
-      }
-      console.log('Error config:', error.config);
+      console.log('Error config:', error);
     }
   };
 
@@ -111,18 +119,11 @@ function ProfileSettingScreen({navigation, route}) {
                 </Text>
                 <CustomTextInput
                   placeholder={'프로필 이름'}
-                  value={name} // Set the initial value as the profileNickname
-                  onChangeText={setName} // Update state as user types
+                  value={name} 
+                  onChangeText={setName}
                 />
               </>
             )}
-            {/* <Text style={ProfileSettingStyle.titleText}>
-              프로필 이름을 설정해주세요!
-            </Text>
-            <CustomTextInput
-              placeholder={'프로필 이름'}
-              onChangeText={setName}
-            /> */}
             <Text style={ProfileSettingStyle.titleText}>
               나를 한줄로 소개해 보세요!
             </Text>

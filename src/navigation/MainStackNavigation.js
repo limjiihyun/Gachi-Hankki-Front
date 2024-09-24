@@ -11,6 +11,7 @@ import MapScreen from '../screens/MapScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PostDetailScreen from '../screens/PostDetailScreen';
 import CommentDetailScreen from '../screens/CommentDetail';
+import ChatRoomScreen from '../screens/ChatRoomScreen';
 
 export default function MainStackNavigation() {
   const MainStack = createNativeStackNavigator();
@@ -175,6 +176,27 @@ export default function MainStackNavigation() {
         <MainStack.Screen
           name="ChattingScreen"
           component={ChattingScreen}
+          options={({navigation}) => ({
+            headerBackVisible: false,
+            headerLeft: () => (
+              <TouchableOpacity
+                style={HeaderStyle.goBackButtonTouch}
+                onPress={() => navigation.goBack()}>
+                <Image
+                  style={HeaderStyle.headerImage}
+                  source={require('../assets/header-left-back-button.png')}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitleAlign: 'center',
+            headerTitle: () => (
+              <Text style={HeaderStyle.headerTitleText}>채팅</Text>
+            ),
+          })}
+        />
+        <MainStack.Screen
+          name="ChatRoomScreen"
+          component={ChatRoomScreen}
           options={({navigation}) => ({
             headerBackVisible: false,
             headerLeft: () => (

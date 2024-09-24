@@ -28,7 +28,7 @@ export default function MainBottomScreen() {
     const fetchGets = async () => {
       try {
         const response = await client.users.getProfile();
-        console.log('프로필 가져오기', response.data);
+        console.log('프로필 가져오기', response);
         dispatch(setCharacterImages(response.data.profileImageNumber));
         dispatch(setProfileNickname(response.data.nickname));
         dispatch(setProfileBio(response.data.bio));
