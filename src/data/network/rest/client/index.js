@@ -46,23 +46,13 @@ class Client {
         senderNickname,
         text,
       }),
-
+      
     // 특정 방의 메시지 불러오기 API
     getMessages: async roomId =>
       HttpClient.get(`${API_ENDPOINTS.GET_MESSAGES}/${roomId}/messages`),
+    //유저가 참여중인 채팅방 목록 가져오기
+    getRooms: async data => HttpClient.get(API_ENDPOINTS.GET_ROOM, data),
 
-    // // 메시지 보내기 API
-    // sendMessage: async (roomId, message) =>
-    //   HttpClient.post(
-    //     `${API_ENDPOINTS.CREATE_CHATTING_ROOM}/${roomId}/messages`,
-    //     {message},
-    //   ),
-
-    // // 특정 방의 메시지 불러오기 API
-    // getMessages: async roomId =>
-    //   HttpClient.get(
-    //     `${API_ENDPOINTS.CREATE_CHATTING_ROOM}/${roomId}/messages`,
-    //   ),
     addComment: async (postId, commentData) => {
       try {
         const response = await HttpClient.post(

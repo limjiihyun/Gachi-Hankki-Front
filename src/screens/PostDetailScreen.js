@@ -53,7 +53,7 @@ function PostDetailScreen({route}) {
   const images = [{url: post.Attachment}]; // ImageViewer용 이미지 배열
 
   const profileImage = CHARACTER_IMAGE.find(
-    item => item.id === post.userProfile.profileImageNumber,
+    item => item.id === post?.userProfile?.profileImageNumber,
   );
 
   const renderHeader = () => (
@@ -77,7 +77,7 @@ function PostDetailScreen({route}) {
         <View style={{flexDirection: 'row', marginTop: 10, marginBottom: 10}}>
           <Image
             source={
-              profileImage
+              profileImage && profileImage.src
                 ? profileImage.src
                 : require('../assets/character/1.png')
             }
@@ -89,6 +89,9 @@ function PostDetailScreen({route}) {
               {post.department}
             </Text>
           </View>
+          <TouchableOpacity>
+            <Text>채팅하기</Text>
+          </TouchableOpacity>
         </View>
         <HorizontalLine />
         <Text style={PostDetailStyle.postTitleText}>{post.PostTitle}</Text>

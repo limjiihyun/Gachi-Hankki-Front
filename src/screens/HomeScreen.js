@@ -35,6 +35,7 @@ function HomeScreen({navigation}) {
   const fetchPosts = async () => {
     try {
       const response = await Client.users.getBoard();
+      console.log('게시물정보', response.data);
       setPosts(response.data);
     } catch (error) {
       console.log('GET 요청 실패:', error.message);
@@ -43,13 +44,13 @@ function HomeScreen({navigation}) {
   };
 
   useEffect(() => {
-    fetchPosts(); 
+    fetchPosts();
   }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts(); 
-    setRefreshing(false); 
+    await fetchPosts();
+    setRefreshing(false);
   };
 
   const renderPost = ({item}) => {
@@ -60,9 +61,20 @@ function HomeScreen({navigation}) {
         ? {uri: `${item.Attachment}`}
         : defaultImage;
 
+    const handlePostPress = () => {
+      if (!item.userProfile) {
+        Alert.alert(
+          '  ',
+          '작성자가 계정을 비활성화했기 때문에 이 콘텐츠는 더 이상 사용할 수 없습니다.',
+        );
+      } else {
+        navigation.navigate('PostDetailScreen', {post: item});
+      }
+    };
+
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('PostDetailScreen', {post: item})}
+        onPress={handlePostPress}
         style={HomeStyle.postContainer}>
         <View style={{flexDirection: 'row'}}>
           <Image

@@ -7,10 +7,11 @@ export const API_ENDPOINTS = {
   EMAIL_SEND_CODE: '/email-verification/send-code',
   PROFILE: 'profile',
   PATCH_PROFILE_IMAGE: 'profile/image',
-  PATCH_PROFILE_BIO:'profile/bio',
-  CREATE_CHATTING_ROOM: 'chat/rooms', // 쪽지방 생성
-  SEND_MESSAGE: 'chat/rooms', // 메시지 추가
-  GET_MESSAGES: 'chat/rooms', // 메시지 가져오기  PROFILE: '/profile',
+  PATCH_PROFILE_BIO: 'profile/bio',
+  CREATE_CHATTING_ROOM: '/rooms', // 쪽지방 생성
+  SEND_MESSAGE: '/rooms', // 메시지 추가
+  GET_MESSAGES: '/rooms', // 메시지 가져오기
+  GET_ROOM: '/rooms',
   COMMENTS: postId => `/board/${postId}/comments`,
   COMMENT_REPLIES: (postId, commentId) =>
     `/post/${postId}/comments/${commentId}/replies`,
