@@ -8,27 +8,29 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
+  Modal,
+  Alert,
 } from 'react-native';
 import client from '../data/network/rest/client';
 import colors from '../constants/colors/colors';
 import {useNavigation} from '@react-navigation/native';
 import CHARACTER_IMAGE from '../constants/data/character-image';
+import PostDetailStyle from '../styles/PostDetailStyle';
 
-const Comments = ({postId, postAuthor, navigate}) => {
+const Comments = ({postId, postAuthor}) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-  const [profiles, setProfiles] = useState({}); // 사용자 프로필을 저장할 상태
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isOptionsModalVisible, setOptionsModalVisible] = useState(false);
   const navigation = useNavigation();
 
-  // 댓글 목록 가져오기
   const fetchComments = async () => {
     try {
       const response = await client.users.getComments(postId);
       if (response.data && Array.isArray(response.data)) {
-        setComments(response.data); // 서버로부터 받은 댓글 리스트를 상태로 설정
-        console.log('댓글입니다', response.data);
-        // 각 댓글 작성자의 프로필 가져오기
+        setComments(response.data);
         response.data.forEach(comment => {
           fetchSingleComment(postId, comment.id);
         });
@@ -37,9 +39,8 @@ const Comments = ({postId, postAuthor, navigate}) => {
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        // 404 에러인 경우, 댓글이 없는 게시물로 간주하고 빈 배열 설정
         console.log('댓글이 없는 게시물입니다.');
-        setComments([]); // 댓글이 없을 경우 빈 배열로 설정
+        setComments([]);
       } else {
         console.error('댓글 가져오기 실패:', error);
       }
@@ -55,94 +56,163 @@ const Comments = ({postId, postAuthor, navigate}) => {
     }
   };
 
-  // 댓글 작성 함수
   const addComment = async () => {
     if (newComment.trim()) {
       try {
-        setIsLoading(true); // 댓글 작성 시작 시 로딩 상태 활성화
+        setIsLoading(true);
         const newCommentData = {content: newComment};
-
-        // 서버에 댓글 추가 요청
         await client.users.addComment(postId, newCommentData);
 
-        // 댓글 목록을 다시 가져오기 전에 1초 지연
         setTimeout(() => {
-          fetchComments(); // 서버에서 최종적으로 댓글을 가져와 상태 업데이트
-          setIsLoading(false); // 댓글 가져온 후 로딩 상태 비활성화
-        }, 2000); // 1초(1000ms) 지연 후에 fetchComments 호출
+          fetchComments();
+          setIsLoading(false);
+        }, 2000);
 
-        setNewComment(''); // 입력 필드 초기화
+        setNewComment('');
       } catch (error) {
-        setIsLoading(false); // 에러 발생 시 로딩 상태 비활성화
+        setIsLoading(false);
         console.error('댓글 작성 실패:', error);
       }
     }
   };
 
   useEffect(() => {
-    fetchComments(); // 컴포넌트가 마운트될 때 댓글 목록을 가져옴
+    fetchComments();
   }, []);
 
   const formatDate = createdAt => {
-    const date = new Date(createdAt); // createdAt을 Date 객체로 변환
-    const formattedDate = date.toLocaleDateString(); // 날짜 포맷 (예: 2024-09-11)
-
-    // 시간을 UTC 그대로 사용하여 포맷
-    const hours = String(date.getUTCHours()).padStart(2, '0'); // UTC 시간
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0'); // UTC 분
-
-    return `${formattedDate} ${hours}:${minutes}`; // 포맷된 날짜와 UTC 시간 반환
+    const date = new Date(createdAt);
+    const formattedDate = date.toLocaleDateString();
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${formattedDate} ${hours}:${minutes}`;
   };
 
-  // 댓글 목록을 렌더링
+  const openProfileModal = comment => {
+    const profileImageNumber = comment.userProfile?.profileImageNumber;
+    const profileImage = CHARACTER_IMAGE.find(
+      image => image.id === profileImageNumber,
+    );
+
+    setSelectedProfile({
+      nickname: comment.nickname,
+      bio: comment.userProfile?.bio,
+      profileImage: profileImage ? profileImage.src : null,
+      department: comment.department,
+      commentContent: comment.content,
+    });
+    setModalVisible(true);
+  };
+
+  const closeProfileModal = () => {
+    setModalVisible(false);
+    setSelectedProfile(null);
+  };
+
+  // 옵션 모달 열기
+  const openOptionsModal = () => {
+    setOptionsModalVisible(true);
+  };
+
+  // 옵션 모달 닫기
+  const closeOptionsModal = () => {
+    setOptionsModalVisible(false);
+  };
+
+  const createRoom = async receiverNickname => {
+    console.log('Creating chat room with:', receiverNickname); // Debugging line
+    try {
+      const response = await client.users.createChattingRoom({
+        receiverNickname,
+      });
+      const roomId = response.data.roomId;
+
+      if (response.data.success) {
+        Alert.alert('Success', 'Chat room created successfully!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('ChatRoomScreen', {roomId}),
+          },
+        ]);
+      } else {
+        Alert.alert(
+          'Error',
+          response.data.message || 'Failed to create or retrieve chat room',
+        );
+      }
+    } catch (error) {
+      if (error.response) {
+        const errorMessage =
+          error.response.data.message || 'An error occurred.';
+        Alert.alert('Error', errorMessage);
+      } else {
+        Alert.alert('Error', 'An error occurred while setting up the request');
+      }
+    }
+  };
+
   const renderItem = ({item}) => {
     const profileImageNumber = item.userProfile?.profileImageNumber;
-
     const profileImage = CHARACTER_IMAGE.find(
-      image => image.id === String(profileImageNumber),
+      image => image.id === profileImageNumber,
     );
+
     return (
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('CommentDetailScreen', {
-            postId: postId, // postId 전달
-            commentId: item.id, // commentId 전달
-          })
-        }>
+      <TouchableOpacity onPress={() => openProfileModal(item)}>
         <View
           style={{
             paddingVertical: 10,
             flexDirection: 'row',
             borderBottomWidth: 0.5,
             borderBottomColor: colors.grey500,
-            paddingBottom: 5,
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
-          <Image
-            source={
-              profileImage
-                ? profileImage.src
-                : require('../assets/character/1.png')
-            } // 프로필 이미지가 존재하면 해당 이미지, 없으면 null
-            style={{width: 70, height: 70, borderRadius: 35, marginTop: 12}}
-          />
-          <View style={{flexDirection: 'column', marginLeft: 10}}>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{fontWeight: 'bold', color: colors.grey900}}>
-                {item.nickname}
-              </Text>
-              {item.nickname === postAuthor && ( // 댓글 작성자와 게시물 작성자가 동일하면 "작성자" 표시
-                <Text style={{marginLeft: 5, color: colors.blue}}>
-                  (글쓴이)
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={
+                profileImage
+                  ? profileImage.src
+                  : require('../assets/character/1.png')
+              }
+              style={{width: 70, height: 70, borderRadius: 35, marginTop: 12}}
+            />
+            <View style={{flexDirection: 'column', marginLeft: 10}}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{fontWeight: 'bold', color: colors.grey900}}>
+                  {item.nickname}
                 </Text>
-              )}
+                {item.nickname === postAuthor && (
+                  <Text style={{marginLeft: 5, color: colors.blue}}>
+                    (글쓴이)
+                  </Text>
+                )}
+              </View>
+              <Text style={{marginTop: 3, color: colors.grey600}}>
+                {item.content}
+              </Text>
+              <Text style={{color: colors.grey400, marginTop: 3}}>
+                {formatDate(item.createdAt)}
+              </Text>
             </View>
-            <Text style={{marginTop: 3, color: colors.grey600}}>
-              {item.content}
-            </Text>
-            <Text style={{color: colors.grey400, marginTop: 3}}>
-              {formatDate(item.createdAt)}
-            </Text>
           </View>
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedProfile(item);
+              setOptionsModalVisible(true);
+            }}
+            style={{
+              marginTop: -40,
+              width: 50,
+              height: 50,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Image
+              source={require('../assets/three-dot.png')}
+              style={{width: 17, height: 17}}
+            />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -156,12 +226,11 @@ const Comments = ({postId, postAuthor, navigate}) => {
 
       <FlatList
         data={comments}
-        inverted={true} // 배열을 역순으로 렌더링하여 최신 댓글이 아래에 표시되게 함
-        keyExtractor={(item, index) => index.toString()} // index를 key로 사용
+        inverted={true} // 최신 댓글이 아래에 표시
+        keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
       />
 
-      {/* 댓글이 없거나 댓글이 3개 이하일 경우 특정 UI를 보여줌 */}
       {comments.length === 0 && (
         <View
           style={{
@@ -177,51 +246,104 @@ const Comments = ({postId, postAuthor, navigate}) => {
         </View>
       )}
 
-      {/* 댓글이 3개 이하일 때 특정 메시지나 UI 표시 */}
-      {comments.length >= 1 && comments.length <= 3 && (
-        <View style={{height: 200, width: '100%'}} />
-      )}
-
-      {/* 로딩 중일 때 스피너 표시 */}
-      {isLoading && (
-        <View style={{marginVertical: 10}}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text>댓글을 작성 중입니다...</Text>
-        </View>
-      )}
-
-      {/* 댓글 입력 폼 */}
-      <View style={{flexDirection: 'row', marginVertical: 10}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          borderColor: colors.grey300,
+          borderWidth: 0.5,
+        }}>
         <TextInput
           value={newComment}
           onChangeText={setNewComment}
-          placeholder="댓글을 입력하세요"
-          style={{
-            borderColor: colors.grey300,
-            borderWidth: 1,
-            borderRadius: 8,
-            flex: 1,
-            marginRight: 10,
-            paddingLeft: 10,
-          }}
+          placeholder="댓글 작성하기..."
+          style={{padding: 10, flex: 1}}
           multiline={true}
         />
-        <TouchableOpacity
-          onPress={addComment}
+        <Button title="작성" onPress={addComment} />
+      </View>
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <View
           style={{
-            width: 57,
-            height: 50,
-            backgroundColor: colors.blue,
-            borderRadius: 10,
             justifyContent: 'center',
             alignItems: 'center',
+            marginVertical: 10,
           }}>
-          <Image
-            source={require('../assets/icon-create.png')}
-            style={{width: 35, height: 30, marginLeft: -3}}
-          />
+          <ActivityIndicator size="large" color={colors.grey500} />
+          <Text>댓글을 등록 중입니다...</Text>
+        </View>
+      )}
+
+      {/* Profile Modal */}
+      <Modal visible={isModalVisible} transparent={true}>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}
+          onPress={closeProfileModal}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              width: '80%',
+              borderRadius: 10,
+              alignItems: 'center',
+            }}>
+            <Image
+              source={
+                selectedProfile?.profileImage ||
+                require('../assets/character/1.png')
+              }
+              style={{
+                width: 70,
+                height: 70,
+                borderRadius: 35,
+                marginBottom: 10,
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginBottom: 10,
+              }}>
+              {selectedProfile?.nickname}
+            </Text>
+            <Text style={{fontSize: 16, textAlign: 'center', marginBottom: 10}}>
+              학과: {selectedProfile?.department}
+            </Text>
+            <Text style={{textAlign: 'center', marginBottom: 10}}>
+              한 줄 소개: {selectedProfile?.bio}
+            </Text>
+            <TouchableOpacity
+              onPress={closeProfileModal}
+              style={{justifyContent: 'center', alignItems: 'center'}}>
+              <Text>닫기</Text>
+            </TouchableOpacity>
+          </View>
         </TouchableOpacity>
-      </View>
+      </Modal>
+
+      <Modal visible={isOptionsModalVisible} transparent={true}>
+        <TouchableOpacity
+          style={PostDetailStyle.modalBackground}
+          onPress={closeOptionsModal}>
+          <View style={PostDetailStyle.optionsContainer}>
+            <TouchableOpacity
+              onPress={() => createRoom(selectedProfile.nickname)}>
+              <Text style={PostDetailStyle.optionText}>채팅하기</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => console.log('신고하기')}>
+              <Text style={PostDetailStyle.optionText}>신고하기</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };

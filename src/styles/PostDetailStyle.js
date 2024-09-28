@@ -34,6 +34,13 @@ const PostDetailStyle = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 16,
   },
+  threeDotContainer: {
+    marginTop: -20,
+  },
+  threeDotImage: {
+    width: 20,
+    height: 20,
+  },
   postTitleText: {
     fontSize: 20,
     fontWeight: '700',
@@ -80,6 +87,23 @@ const PostDetailStyle = StyleSheet.create({
   closeButtonImage: {
     width: 24, // 닫기 버튼 이미지 너비
     height: 24, // 닫기 버튼 이미지 높이
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  optionsContainer: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  optionText: {
+    fontSize: 16,
+    paddingVertical: 10,
+    textAlign: 'center',
   },
 });
 
