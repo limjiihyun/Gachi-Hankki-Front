@@ -129,10 +129,12 @@ function CreatePostScreen({navigation}) {
           'Content-Type': 'multipart/form-data', // multipart 형식 명시
         },
       });
-      console.log('bb');
       if (response.status === 201) {
         console.log('게시글 POST 요청 성공:', response.data);
-        navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+        navigation.navigate('MainStack', {
+          screen: 'HomeScreen',
+          params: {refresh: true},
+        });
       } else {
         console.log('게시글 POST 요청 실패:', response.data);
       }

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  ScrollView,
   Animated,
   Modal,
   TouchableOpacity,
@@ -16,20 +15,17 @@ import HorizontalLine from '../components/HorizontalLine';
 import Comments from '../components/Comment';
 import CHARACTER_IMAGE from '../constants/data/character-image';
 import client from '../data/network/rest/client';
+import CustomAlert from '../components/CustomAlert';
 
 function PostDetailScreen({route, navigation}) {
   const {post} = route.params;
-  console.log('gg', post);
-  const userNickname = post.nickname; // Access nickname
-  const [isCommentModalVisible, setCommentModalVisible] = useState(false);
-  const [selectedCommentId, setSelectedCommentId] = useState(null);
-  const [commentData, setCommentData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const userNickname = post.nickname;
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [isAlertModalVisible, setAlertModalVisible] = useState(false);
 
   const defaultImage = require('../assets/character/1.png');
-  const closeButtonImage = require('../assets/icon-cancle.png'); // 닫기 버튼 이미지 경로
 
   const imageUrl =
     post.Attachment && post.Attachment.trim() !== ''
@@ -76,7 +72,6 @@ function PostDetailScreen({route, navigation}) {
 
     console.log('Profile Image Number:', profileImageNumber);
 
-    // Convert profileImageNumber to an integer for comparison
     const profileImage = CHARACTER_IMAGE.find(
       image => image.id === profileImageNumber,
     );
@@ -88,7 +83,7 @@ function PostDetailScreen({route, navigation}) {
       bio: post.userProfile?.bio,
       profileImage: profileImage
         ? profileImage.src
-        : require('../assets/character/1.png'), // Default image if none found
+        : require('../assets/character/1.png'),
       department: post.department,
       commentContent: post.content,
     });
@@ -142,6 +137,45 @@ function PostDetailScreen({route, navigation}) {
         Alert.alert('Error', 'An error occurred while setting up the request');
       }
     }
+  };
+
+  const deletePost = postId => {
+    Alert.alert(
+      '게시물 삭제',
+      '정말로 이 게시물을 삭제하시겠습니까?',
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '삭제',
+          onPress: async () => {
+            try {
+              const response = await client.users.deleteBoard(postId);
+              setAlertModalVisible(true);
+              console.log('게시물이 삭제되었습니다.');
+              navigation.navigate('MainStack', {
+                screen: 'HomeScreen',
+                params: {refresh: true},
+              });
+            } catch (error) {
+              if (error.response) {
+                console.error(
+                  error.response.data.message || error.response.data.error,
+                );
+              } else {
+                console.error(
+                  '게시글 삭제 중 오류가 발생했습니다.',
+                  error.message,
+                );
+              }
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   const renderHeader = () => (
@@ -367,9 +401,20 @@ function PostDetailScreen({route, navigation}) {
             <TouchableOpacity onPress={() => console.log('신고하기')}>
               <Text style={PostDetailStyle.optionText}>신고하기</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => deletePost(post.id)}>
+              <Text style={PostDetailStyle.optionText}>삭제하기</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
+      <CustomAlert
+        message={alertMessage}
+        isVisible={isAlertModalVisible}
+        onClose={() => {
+          setAlertModalVisible(false);
+          setAlertMessage('');
+        }}
+      />
     </View>
   );
 }

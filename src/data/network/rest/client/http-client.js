@@ -5,7 +5,7 @@ import {navigate} from '../../../../navigation/AppStackNavigation';
 
 export const Axios = axios.create({
   //baseURL: 'http://localhost:3000/',
-  baseURL: 'http://192.168.219.189:3000/', //집
+  baseURL: 'http://192.168.219.179:3000/', //집
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

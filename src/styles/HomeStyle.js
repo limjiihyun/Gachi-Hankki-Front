@@ -10,9 +10,10 @@ const HomeStyle = StyleSheet.create({
   headerContainer: {
     width: '100%',
     height: 40,
-    justifyContent: 'center',
     alignItems: 'flex-end',
+    justifyContent: 'center',
     paddingLeft: 10,
+    marginTop: 5,
   },
   toggleContainer: {
     width: 100,

@@ -11,18 +11,20 @@ class Client {
       return response;
     },
     signUp: async userData => HttpClient.post(API_ENDPOINTS.SIGN_UP, userData),
+    me: async () => await HttpClient.get(API_ENDPOINTS.USERS_ME),
+    refresh: async refresh =>
+      HttpClient.post(API_ENDPOINTS.REFRESH_TOKEN, {
+        refresh,
+      }),
     createBoard: async data =>
       HttpClient.post(API_ENDPOINTS.BOARD, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       }),
-    me: async () => await HttpClient.get(API_ENDPOINTS.USERS_ME),
-    refresh: async refresh =>
-      HttpClient.post(API_ENDPOINTS.REFRESH_TOKEN, {
-        refresh,
-      }),
     getBoard: async data => HttpClient.get(API_ENDPOINTS.BOARD, data),
+    deleteBoard: async postId =>
+      HttpClient.delete(`${API_ENDPOINTS.BOARD}/${postId}`),
     emailSendCode: async data =>
       HttpClient.post(API_ENDPOINTS.EMAIL_SEND_CODE, data),
     createProfile: async data => {
@@ -46,7 +48,7 @@ class Client {
         senderNickname,
         text,
       }),
-      
+
     // 특정 방의 메시지 불러오기 API
     getMessages: async roomId =>
       HttpClient.get(`${API_ENDPOINTS.GET_MESSAGES}/${roomId}/messages`),

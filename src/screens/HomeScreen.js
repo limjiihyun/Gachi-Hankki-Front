@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   Image,
   Text,
@@ -7,21 +7,38 @@ import {
   FlatList,
   Alert,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import HomeStyle from '../styles/HomeStyle';
 import Client from '../data/network/rest/client';
 import colors from '../constants/colors/colors';
 import {timeSince} from '../utils/timeSince';
+import {useFocusEffect} from '@react-navigation/native';
 
-function HomeScreen({navigation}) {
+function HomeScreen({navigation, route}) {
   const CreatePost = () => {
     navigation.navigate('MainStack', {screen: 'CreatePostScreen'});
   };
+
+  const {refresh} = route.params || {};
+
+  useFocusEffect(
+    useCallback(() => {
+      if (refresh) {
+        fetchPosts();
+      }
+    }, [refresh]),
+  );
+
+  useEffect(() => {
+    console.log('Route params:', route.params);
+  }, [route.params]);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState('최신순');
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
@@ -32,25 +49,29 @@ function HomeScreen({navigation}) {
     setDropdownVisible(false);
   };
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (isInitialLoad = false) => {
     try {
+      if (isInitialLoad) {
+        setIsLoading(true);
+      }
       const response = await Client.users.getBoard();
-      console.log('게시물정보', response.data);
       setPosts(response.data);
     } catch (error) {
       console.log('GET 요청 실패:', error.message);
       Alert.alert('Error', 'GET 요청 실패:home ' + error.message);
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(true);
   }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts();
-    setRefreshing(false);
+    await fetchPosts(false);
   };
 
   const renderPost = ({item}) => {
@@ -105,12 +126,7 @@ function HomeScreen({navigation}) {
           </View>
         </View>
         <View style={{alignItems: 'flex-end'}}>
-          <Text
-            style={{
-              color: 'grey',
-              fontSize: 12,
-              color: colors.grey500,
-            }}>
+          <Text style={{color: 'grey', fontSize: 12, color: colors.grey500}}>
             {timeSince(item.PostDate)}
           </Text>
         </View>
@@ -130,7 +146,7 @@ function HomeScreen({navigation}) {
           />
           <Text style={HomeStyle.buttonText}>{selectedOption}</Text>
         </TouchableOpacity>
-        {dropdownVisible && (
+        {/* {dropdownVisible && (
           <View style={HomeStyle.dropdown}>
             <TouchableOpacity
               style={HomeStyle.dropdownItem}
@@ -143,7 +159,7 @@ function HomeScreen({navigation}) {
               <Text style={HomeStyle.dropdownText}>인기순</Text>
             </TouchableOpacity>
           </View>
-        )}
+        )} */}
       </View>
       {posts.length > 0 ? (
         <FlatList
@@ -173,5 +189,4 @@ function HomeScreen({navigation}) {
     </View>
   );
 }
-
 export default HomeScreen;
