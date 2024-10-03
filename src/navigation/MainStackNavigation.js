@@ -6,8 +6,7 @@ import SelectIconScreen from '../screens/SelectIconScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MainBottomScreen from '../screens/MainBottomScreen';
 import CreatePostScreen from '../screens/CreatePostScreen';
-import ChattingScreen from '../screens/ChattingScreen';
-import MapScreen from '../screens/MapScreen';
+import ChattingRoomListScreen from '../screens/ChattingRoomListScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import PostDetailScreen from '../screens/PostDetailScreen';
 import CommentDetailScreen from '../screens/CommentDetail';
@@ -174,8 +173,8 @@ export default function MainStackNavigation() {
           })}
         />
         <MainStack.Screen
-          name="ChattingScreen"
-          component={ChattingScreen}
+          name="ChattingRoomListScreen"
+          component={ChattingRoomListScreen}
           options={({navigation}) => ({
             headerBackVisible: false,
             headerLeft: () => (
@@ -212,27 +211,6 @@ export default function MainStackNavigation() {
             headerTitleAlign: 'center',
             headerTitle: () => (
               <Text style={HeaderStyle.headerTitleText}>채팅</Text>
-            ),
-          })}
-        />
-        <MainStack.Screen
-          name="MapScreen"
-          component={MapScreen}
-          options={({navigation}) => ({
-            headerBackVisible: false,
-            headerLeft: () => (
-              <TouchableOpacity
-                style={HeaderStyle.goBackButtonTouch}
-                onPress={() => navigation.goBack()}>
-                <Image
-                  style={HeaderStyle.headerImage}
-                  source={require('../assets/header-left-back-button.png')}
-                />
-              </TouchableOpacity>
-            ),
-            headerTitleAlign: 'center',
-            headerTitle: () => (
-              <Text style={HeaderStyle.headerTitleText}>지도 화면</Text>
             ),
           })}
         />

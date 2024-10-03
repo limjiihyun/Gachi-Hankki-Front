@@ -11,11 +11,6 @@ class Client {
       return response;
     },
     signUp: async userData => HttpClient.post(API_ENDPOINTS.SIGN_UP, userData),
-    me: async () => await HttpClient.get(API_ENDPOINTS.USERS_ME),
-    refresh: async refresh =>
-      HttpClient.post(API_ENDPOINTS.REFRESH_TOKEN, {
-        refresh,
-      }),
     createBoard: async data =>
       HttpClient.post(API_ENDPOINTS.BOARD, data, {
         headers: {
@@ -82,26 +77,16 @@ class Client {
         );
         return response;
       } catch (error) {
-        if (error.response) {
-          // error.response가 정의되어 있으면 상태 코드와 메시지를 출력
-          console.error(
-            `댓글 조회 실패: ${error.response.status} - ${error.response.statusText}`,
-          );
-        } else {
-          // error.response가 없으면 에러 메시지만 출력
-          console.error(`댓글 조회 실패: ${error.message}`);
-        }
-        throw error; // 에러를 상위 호출 스택으로 던짐
+        throw error;
       }
     },
     deleteComment: async (postId, commentId) => {
       try {
-        const response = await HttpClient.delete(
-          `${API_ENDPOINTS.COMMENTS(postId)}/${commentId}`,
-        );
+        const url = API_ENDPOINTS.DELETE_COMMENTS(postId, commentId);
+        const response = await HttpClient.delete(url);
         return response;
       } catch (error) {
-        throw error;
+        throw error; 
       }
     },
 

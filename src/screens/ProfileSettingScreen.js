@@ -75,7 +75,10 @@ function ProfileSettingScreen({navigation, route}) {
       dispatch(setProfileBio(hi));
 
       // 메인 화면으로 이동
-      navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+      navigation.navigate('MainStack', {
+        screen: 'MainBottomScreen',
+        params: {refresh: true},
+      });
     } catch (error) {
       console.log('Error config:', error);
     }
@@ -119,7 +122,7 @@ function ProfileSettingScreen({navigation, route}) {
                 </Text>
                 <CustomTextInput
                   placeholder={'프로필 이름'}
-                  value={name} 
+                  value={name}
                   onChangeText={setName}
                 />
               </>

@@ -20,20 +20,6 @@ function HomeScreen({navigation, route}) {
     navigation.navigate('MainStack', {screen: 'CreatePostScreen'});
   };
 
-  const {refresh} = route.params || {};
-
-  useFocusEffect(
-    useCallback(() => {
-      if (refresh) {
-        fetchPosts();
-      }
-    }, [refresh]),
-  );
-
-  useEffect(() => {
-    console.log('Route params:', route.params);
-  }, [route.params]);
-
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState('최신순');
   const [posts, setPosts] = useState([]);
@@ -68,6 +54,16 @@ function HomeScreen({navigation, route}) {
   useEffect(() => {
     fetchPosts(true);
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchPosts();
+
+      if (route.params?.refresh) {
+        fetchPosts();
+      }
+    }, [route.params?.refresh]), 
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -169,7 +165,7 @@ function HomeScreen({navigation, route}) {
           contentContainerStyle={HomeStyle.listContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          } // Add pull-to-refresh here
+          }
         />
       ) : (
         <View style={HomeStyle.emptyImageContainer}>

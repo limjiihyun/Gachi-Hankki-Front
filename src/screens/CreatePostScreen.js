@@ -7,12 +7,9 @@ import CreatePostStyle from '../styles/CreatePostStyle';
 import DatePicker from 'react-native-date-picker';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
 import Client from '../data/network/rest/client';
-import {useSelector} from 'react-redux';
-import userSlice from '../redux/slices/user-slice';
-import CheckBox, {CheckBoxComponent} from '@react-native-community/checkbox'; // 체크박스 컴포넌트 추가
 
 function CreatePostScreen({navigation}) {
-  const [postTitle, setPostTitle] = useState('dd');
+  const [postTitle, setPostTitle] = useState('');
   const [postDate, setPostDate] = useState('');
   const [restaurantName, setRestaurantName] = useState('');
   const [promiseDate, setPromiseDate] = useState(new Date());
@@ -25,10 +22,6 @@ function CreatePostScreen({navigation}) {
   const [postContent, setPostContent] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [dateSelectOpen, setDateSelectOpen] = useState(false);
-  const [isDateNoneChecked, setIsDateNoneChecked] = useState(false); // 원하는 날짜 '상관없음' 체크 여부
-  const [isTimeNoneChecked, setIsTimeNoneChecked] = useState(false); // 원하는 시간 '상관없음' 체크 여부
-
-  const [nickName, setNickName] = useState('');
 
   // 이미지 선택 함수 수정
   const selectImage = () => {
@@ -86,7 +79,6 @@ function CreatePostScreen({navigation}) {
     {id: 3, label: '사드립니다'},
   ];
 
-  const userSliceAll = useSelector(state => state.user);
   const [isDateNoneSelected, setIsDateNoneSelected] = useState(true); // 날짜 "상관없음" 선택 여부
   const [isTimeNoneSelected, setIsTimeNoneSelected] = useState(true); // 시간 "상관없음" 선택 여부
   const [isDatePickerSelected, setIsDatePickerSelected] = useState(false); // DatePicker가 선택되었는지 여부
@@ -132,7 +124,7 @@ function CreatePostScreen({navigation}) {
       if (response.status === 201) {
         console.log('게시글 POST 요청 성공:', response.data);
         navigation.navigate('MainStack', {
-          screen: 'HomeScreen',
+          screen: 'MainBottomScreen',
           params: {refresh: true},
         });
       } else {

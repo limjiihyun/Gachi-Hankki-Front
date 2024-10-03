@@ -78,6 +78,7 @@ const Comments = ({postId, postAuthor}) => {
 
   useEffect(() => {
     fetchComments();
+    console.log('??', postId);
   }, []);
 
   const formatDate = createdAt => {
@@ -100,6 +101,7 @@ const Comments = ({postId, postAuthor}) => {
       profileImage: profileImage ? profileImage.src : null,
       department: comment.department,
       commentContent: comment.content,
+      commentId: comment.id,
     });
     setModalVisible(true);
   };
@@ -120,7 +122,7 @@ const Comments = ({postId, postAuthor}) => {
   };
 
   const createRoom = async receiverNickname => {
-    console.log('Creating chat room with:', receiverNickname); // Debugging line
+    console.log('Creating chat room with:', receiverNickname); 
     try {
       const response = await client.users.createChattingRoom({
         receiverNickname,
@@ -128,12 +130,7 @@ const Comments = ({postId, postAuthor}) => {
       const roomId = response.data.roomId;
 
       if (response.data.success) {
-        Alert.alert('Success', 'Chat room created successfully!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('ChatRoomScreen', {roomId}),
-          },
-        ]);
+        navigation.navigate('ChatRoomScreen', {roomId});
       } else {
         Alert.alert(
           'Error',
@@ -149,6 +146,43 @@ const Comments = ({postId, postAuthor}) => {
         Alert.alert('Error', 'An error occurred while setting up the request');
       }
     }
+  };
+
+  const deleteComment = (postId, commentId) => {
+    Alert.alert(
+      '댓글 삭제',
+      '정말로 이 댓글을 삭제하시겠습니까?',
+      [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '삭제',
+          onPress: async () => {
+            console.log('Post ID:', postId);
+            console.log('Comment ID:', commentId); 
+            try {
+              const response = await client.users.deleteComment(
+                postId,
+                commentId,
+              ); 
+              console.log('댓글이 삭제되었습니다.', response.data);
+              fetchComments(); 
+            } catch (error) {
+              if (error.response) {
+                console.error(
+                  error.response.data.message || error.response.data.error,
+                );
+              } else {
+                console.error(
+                  '댓글 삭제 중 오류가 발생했습니다.',
+                  error.message,
+                );
+              }
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
   };
 
   const renderItem = ({item}) => {
@@ -230,6 +264,7 @@ const Comments = ({postId, postAuthor}) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
       />
+      <View style={{height: 200}} />
 
       {comments.length === 0 && (
         <View
@@ -331,15 +366,51 @@ const Comments = ({postId, postAuthor}) => {
 
       <Modal visible={isOptionsModalVisible} transparent={true}>
         <TouchableOpacity
-          style={PostDetailStyle.modalBackground}
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}
           onPress={closeOptionsModal}>
-          <View style={PostDetailStyle.optionsContainer}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              borderRadius: 10,
+              padding: 20,
+              width: '80%',
+            }}>
             <TouchableOpacity
               onPress={() => createRoom(selectedProfile.nickname)}>
-              <Text style={PostDetailStyle.optionText}>채팅하기</Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  paddingVertical: 10,
+                  textAlign: 'center',
+                }}>
+                채팅하기
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => console.log('신고하기')}>
-              <Text style={PostDetailStyle.optionText}>신고하기</Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  paddingVertical: 10,
+                  textAlign: 'center',
+                }}>
+                신고하기
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => deleteComment(postId, selectedProfile.id)}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  paddingVertical: 10,
+                  textAlign: 'center',
+                }}>
+                삭제하기
+              </Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

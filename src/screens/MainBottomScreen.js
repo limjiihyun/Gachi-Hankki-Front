@@ -3,8 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useNavigation} from '@react-navigation/native';
 import HomeScreen from './HomeScreen';
 import {View, Image, Text} from 'react-native';
-import MapScreen from './MapScreen';
-import ChattingScreen from './ChattingScreen';
+import ChattingRoomListScreen from './ChattingRoomListScreen';
 import ProfileScreen from './ProfileScreen';
 import {useDispatch} from 'react-redux';
 import {
@@ -52,7 +51,7 @@ export default function MainBottomScreen() {
         })}>
         <Tab.Screen
           name="채팅"
-          component={ChattingScreen}
+          component={ChattingRoomListScreen}
           options={{
             headerShown: true,
             headerTitleStyle: {
@@ -77,38 +76,6 @@ export default function MainBottomScreen() {
                   focused
                     ? require('../assets/bottom-chat-select.png')
                     : require('../assets/bottom-chat.png')
-                }
-              />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="지도"
-          component={MapScreen}
-          options={{
-            headerShown: true,
-            headerTitleStyle: {
-              fontSize: 16,
-            },
-            headerTitleAlign: 'center',
-            tabBarLabel: ({focused}) => (
-              <Text
-                style={{
-                  color: focused ? '#E19E52' : '#C0C0C0',
-                  fontSize: 12,
-                  fontFamily: 'Pretendard',
-                  fontWeight: '600',
-                }}>
-                지도
-              </Text>
-            ),
-            tabBarIcon: ({focused}) => (
-              <Image
-                style={{width: 25, height: 25}}
-                source={
-                  focused
-                    ? require('../assets/bottom-map-select.png')
-                    : require('../assets/bottom-map.png')
                 }
               />
             ),

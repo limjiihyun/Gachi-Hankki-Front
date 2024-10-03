@@ -16,6 +16,8 @@ import Comments from '../components/Comment';
 import CHARACTER_IMAGE from '../constants/data/character-image';
 import client from '../data/network/rest/client';
 import CustomAlert from '../components/CustomAlert';
+import ProfileModal from '../components/ProfileModal';
+import PostOptionsModal from '../components/PostOptionsModal';
 
 function PostDetailScreen({route, navigation}) {
   const {post} = route.params;
@@ -33,7 +35,8 @@ function PostDetailScreen({route, navigation}) {
       : defaultImage;
   const scrollY = useRef(new Animated.Value(0)).current;
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
-  const [isOptionsModalVisible, setOptionsModalVisible] = useState(false); // 상태 추가
+  const [isPostOptionsModalVisible, setPostOptionsModalVisible] =
+    useState(false); // 상태 추가
 
   // 스크롤에 따른 이미지 확대 조절
   const imageScale = scrollY.interpolate({
@@ -59,24 +62,20 @@ function PostDetailScreen({route, navigation}) {
 
   // 옵션 모달 열기
   const openOptionsModal = () => {
-    setOptionsModalVisible(true);
+    setPostOptionsModalVisible(true);
   };
 
   // 옵션 모달 닫기
-  const closeOptionsModal = () => {
-    setOptionsModalVisible(false);
+  const closePostOptionsModal = () => {
+    setPostOptionsModalVisible(false);
   };
 
   const openProfileModal = post => {
     const profileImageNumber = post.userProfile?.profileImageNumber;
 
-    console.log('Profile Image Number:', profileImageNumber);
-
     const profileImage = CHARACTER_IMAGE.find(
       image => image.id === profileImageNumber,
     );
-
-    console.log('Profile Image:', profileImage);
 
     setSelectedProfile({
       nickname: post.nickname,
@@ -111,12 +110,7 @@ function PostDetailScreen({route, navigation}) {
       const roomId = response.data.roomId;
 
       if (response.data.success) {
-        Alert.alert('Success', 'Chat room created successfully!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('ChatRoomScreen', {roomId}),
-          },
-        ]);
+        navigation.navigate('ChatRoomScreen', {roomId});
       } else {
         Alert.alert(
           'Error',
@@ -156,7 +150,7 @@ function PostDetailScreen({route, navigation}) {
               setAlertModalVisible(true);
               console.log('게시물이 삭제되었습니다.');
               navigation.navigate('MainStack', {
-                screen: 'HomeScreen',
+                screen: 'MainBottomScreen',
                 params: {refresh: true},
               });
             } catch (error) {
@@ -336,77 +330,18 @@ function PostDetailScreen({route, navigation}) {
         </Modal>
       )}
 
-      {/* Profile Modal */}
-      <Modal visible={isModalVisible} transparent={true}>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          }}
-          onPress={closeProfileModal}>
-          <View
-            style={{
-              backgroundColor: 'white',
-              padding: 20,
-              width: '80%',
-              borderRadius: 10,
-              alignItems: 'center',
-            }}>
-            <Image
-              source={
-                selectedProfile?.profileImage ||
-                require('../assets/character/1.png')
-              }
-              style={{
-                width: 70,
-                height: 70,
-                borderRadius: 35,
-                marginBottom: 10,
-              }}
-            />
-            <Text
-              style={{
-                fontSize: 18,
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginBottom: 10,
-              }}>
-              {post.userProfile.nickname}
-            </Text>
-            <Text style={{fontSize: 16, textAlign: 'center', marginBottom: 10}}>
-              학과: {post.department}
-            </Text>
-            <Text style={{textAlign: 'center', marginBottom: 10}}>
-              한 줄 소개: {post.userProfile.bio}
-            </Text>
-            <TouchableOpacity
-              onPress={closeProfileModal}
-              style={{justifyContent: 'center', alignItems: 'center'}}>
-              <Text>닫기</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <ProfileModal
+        isVisible={isModalVisible}
+        selectedProfile={selectedProfile}
+        closeProfileModal={closeProfileModal}
+      />
 
-      <Modal visible={isOptionsModalVisible} transparent={true}>
-        <TouchableOpacity
-          style={PostDetailStyle.modalBackground}
-          onPress={closeOptionsModal}>
-          <View style={PostDetailStyle.optionsContainer}>
-            <TouchableOpacity onPress={() => createRoom(post.nickname)}>
-              <Text style={PostDetailStyle.optionText}>채팅하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => console.log('신고하기')}>
-              <Text style={PostDetailStyle.optionText}>신고하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => deletePost(post.id)}>
-              <Text style={PostDetailStyle.optionText}>삭제하기</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <PostOptionsModal
+        isVisible={isPostOptionsModalVisible}
+        closeModal={closePostOptionsModal}
+        createRoom={() => createRoom(post.nickname)}
+        deletePost={() => deletePost(post.id)}
+      />
       <CustomAlert
         message={alertMessage}
         isVisible={isAlertModalVisible}

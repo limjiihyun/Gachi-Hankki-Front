@@ -13,6 +13,8 @@ export const API_ENDPOINTS = {
   GET_MESSAGES: '/rooms', // 메시지 가져오기
   GET_ROOM: '/rooms',
   COMMENTS: postId => `/board/${postId}/comments`,
+  DELETE_COMMENTS: (postId, commentId) =>
+    `/board/${postId}/comments/${commentId}`,
   COMMENT_REPLIES: (postId, commentId) =>
     `/post/${postId}/comments/${commentId}/replies`,
   COMMENT_DETAIL: (postId, commentId) =>

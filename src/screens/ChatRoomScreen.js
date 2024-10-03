@@ -7,17 +7,18 @@ import {
   FlatList,
   Alert,
   StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import client from '../data/network/rest/client';
+import colors from '../constants/colors/colors';
 
 const ChatRoomScreen = ({route}) => {
   const {roomId} = route.params;
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const userNickname = useSelector(state => state.user.profileNickname); // Get your profile name
+  const userNickname = useSelector(state => state.user.profileNickname);
 
-  // Load messages from server
   const loadMessages = async () => {
     try {
       const response = await client.users.getMessages(roomId);
@@ -39,12 +40,11 @@ const ChatRoomScreen = ({route}) => {
     }
   };
 
-  // Send message
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
 
     try {
-      const senderNickname = userNickname; // Use your profile name
+      const senderNickname = userNickname;
       const response = await client.users.sendMessage(
         roomId,
         senderNickname,
@@ -57,7 +57,7 @@ const ChatRoomScreen = ({route}) => {
           text: newMessage,
           sender: senderNickname,
           timestamp: Date.now(),
-          isSent: true, // Indicate that this message was sent by the user
+          isSent: true,
         };
 
         setMessages(prevMessages => [...prevMessages, messageToSend]);
@@ -78,12 +78,11 @@ const ChatRoomScreen = ({route}) => {
     }
   };
 
-  // Transform messages for rendering
   const transformMessages = messagesObj => {
     return Object.keys(messagesObj).map(key => ({
       id: key,
       ...messagesObj[key],
-      isSent: messagesObj[key].sender === userNickname, // Check if the sender is the user
+      isSent: messagesObj[key].sender === userNickname,
       timestamp: messagesObj[key].timestamp || Date.now(),
     }));
   };
@@ -92,13 +91,13 @@ const ChatRoomScreen = ({route}) => {
     loadMessages();
   }, []);
 
-  // Render each message
   const renderItem = ({item}) => {
     return (
       <View
         style={{
           padding: 10,
-          alignSelf: item.isSent ? 'flex-end' : 'flex-start', // Align based on sender
+          marginHorizontal: 10,
+          alignSelf: item.isSent ? 'flex-end' : 'flex-start',
           backgroundColor: item.isSent ? '#d1e7dd' : '#f8d7da',
           borderRadius: 10,
           marginVertical: 5,
@@ -123,7 +122,9 @@ const ChatRoomScreen = ({route}) => {
           value={newMessage}
           onChangeText={setNewMessage}
         />
-        <Button title="전송" onPress={sendMessage} />
+        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+          <Text style={styles.sendButtonText}>전송</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -142,9 +143,19 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 8,
     paddingHorizontal: 10,
-    marginRight: 10, // Add some space between input and button
+    marginRight: 10,
+  },
+  sendButton: {
+    backgroundColor: colors.lightBrown,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+  sendButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
