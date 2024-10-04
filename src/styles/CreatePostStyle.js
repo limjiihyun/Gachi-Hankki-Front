@@ -73,6 +73,15 @@ const CreatePostStyle = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
   },
+  multilineInput: {
+    marginTop: 10,
+    height: 150,
+    borderColor: colors.grey300,
+    borderWidth: 1,
+    padding: 10,
+    textAlignVertical: 'top',
+    borderRadius: 10,
+  },
 });
 
 export default CreatePostStyle;

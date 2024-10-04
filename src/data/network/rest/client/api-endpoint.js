@@ -15,8 +15,12 @@ export const API_ENDPOINTS = {
   COMMENTS: postId => `/board/${postId}/comments`,
   DELETE_COMMENTS: (postId, commentId) =>
     `/board/${postId}/comments/${commentId}`,
-  COMMENT_REPLIES: (postId, commentId) =>
-    `/post/${postId}/comments/${commentId}/replies`,
+  REPORT_POST: postId => `/board/${postId}/report`,
+  REPORT_COMMENT: (postId, commentId) =>
+    `/board/${postId}/comments/${commentId}/report`,
+  REPORT_REPLY: (postId, commentId, replyId) =>
+    `/board/${postId}/comments/${commentId}/replies/${replyId}/report`,
+
   COMMENT_DETAIL: (postId, commentId) =>
     `/board/${postId}/comments/${commentId}`,
 };

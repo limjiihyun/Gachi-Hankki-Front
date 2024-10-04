@@ -31,8 +31,8 @@ const ProfileModal = ({isVisible, selectedProfile, closeProfileModal}) => {
                 borderColor: colors.grey400,
                 borderWidth: 1,
                 borderRadius: 50,
-                width: 90,
-                height: 90,
+                width: 85,
+                height: 85,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
@@ -50,10 +50,10 @@ const ProfileModal = ({isVisible, selectedProfile, closeProfileModal}) => {
                 }}
               />
             </View>
-            <View style={{marginLeft: 20}}>
+            <View style={{marginLeft: 27}}>
               <Text
                 style={{
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: 'bold',
                   textAlign: 'left',
                   color: colors.grey800,
@@ -62,10 +62,10 @@ const ProfileModal = ({isVisible, selectedProfile, closeProfileModal}) => {
                 {selectedProfile?.nickname}
               </Text>
               <Text style={{fontSize: 16, textAlign: 'left', marginBottom: 10}}>
-                학과: {selectedProfile?.department}
+                {selectedProfile?.department}
               </Text>
-              <Text style={{textAlign: 'left', marginBottom: 10}}>
-                한 줄 소개: {selectedProfile?.bio}
+              <Text style={{fontSize: 16, textAlign: 'left', marginBottom: 10}}>
+                {selectedProfile?.bio}
               </Text>
             </View>
           </View>

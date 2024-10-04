@@ -15,7 +15,6 @@ import {useSelector} from 'react-redux';
 import colors from '../constants/colors/colors';
 
 const ChattingRoomListScreen = ({navigation}) => {
-  //const [members, setMembers] = useState('');
   const [rooms, setRooms] = useState([]); // 방 목록 상태 추가
   const [loading, setLoading] = useState(true);
   const userNickname = useSelector(state => state.user.profileNickname);
@@ -24,6 +23,7 @@ const ChattingRoomListScreen = ({navigation}) => {
   const fetchRooms = async () => {
     try {
       const response = await client.users.getRooms(); // API 호출
+      console.log('!', response.data);
       if (response.data.success) {
         setRooms(Object.values(response.data.rooms)); // 성공 시 방 목록 업데이트
       } else {

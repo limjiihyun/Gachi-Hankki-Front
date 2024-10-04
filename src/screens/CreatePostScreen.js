@@ -1,5 +1,13 @@
 import React, {useState} from 'react';
-import {Image, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import CustomTextInput from '../components/AuthStack/CustomTextInput';
 import colors from '../constants/colors/colors';
@@ -366,10 +374,13 @@ function CreatePostScreen({navigation}) {
           onChangeText={setRestaurantName}
         />
         <Text style={CreatePostStyle.titleText}>음식점 소개</Text>
-        <CustomTextInput
-          placeholder={'포스트 내용을 입력하세요.'}
+        <TextInput
+          placeholder="포스트 내용을 입력하세요."
           value={postContent}
           onChangeText={setPostContent}
+          multiline={true}
+          numberOfLines={6}
+          style={CreatePostStyle.multilineInput}
         />
       </View>
       <View

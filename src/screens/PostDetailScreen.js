@@ -18,6 +18,7 @@ import client from '../data/network/rest/client';
 import CustomAlert from '../components/CustomAlert';
 import ProfileModal from '../components/ProfileModal';
 import PostOptionsModal from '../components/PostOptionsModal';
+import ReportReasonsModal from '../components/ReportResonsModal';
 
 function PostDetailScreen({route, navigation}) {
   const {post} = route.params;
@@ -26,6 +27,7 @@ function PostDetailScreen({route, navigation}) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isAlertModalVisible, setAlertModalVisible] = useState(false);
+  const [isReportReasonsVisible, setReportReasonsVisible] = useState(false); 
 
   const defaultImage = require('../assets/character/1.png');
 
@@ -172,6 +174,55 @@ function PostDetailScreen({route, navigation}) {
     );
   };
 
+  const postReport = reason => {
+    const postId = post.id;
+    Alert.alert(
+      '신고 확인',
+      `정말로 이 게시물을 '${reason}' 사유로 신고하시겠습니까?`,
+      [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '신고',
+          onPress: async () => {
+            try {
+              const response = await client.users.reportPost(postId, {reason});
+              setAlertModalVisible(true);
+              console.log('게시물이 신고되었습니다.');
+              navigation.navigate('MainStack', {
+                screen: 'MainBottomScreen',
+                params: {refresh: true},
+              });
+            } catch (error) {
+              if (error.response) {
+                const errorMessage =
+                  error.response.data.message || error.response.data.error;
+                if (errorMessage === '이미 신고한 게시글입니다.') {
+                  Alert.alert('알림', '이 게시글은 이미 신고되었습니다.'); // Show alert for already reported
+                } else {
+                  console.error(errorMessage);
+                }
+              } else {
+                console.error(
+                  '게시글 신고 중 오류가 발생했습니다.',
+                  error.message,
+                );
+              }
+            }
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
+  const openReportReasonsModal = () => {
+    setReportReasonsVisible(true);
+  };
+
+  const closeReportReasonsModal = () => {
+    setReportReasonsVisible(false);
+  };
+
   const renderHeader = () => (
     <View>
       {/* 이미지 확대 */}
@@ -303,7 +354,6 @@ function PostDetailScreen({route, navigation}) {
         } // postAuthor 전달
         keyExtractor={(item, index) => index.toString()}
       />
-
       {/* 이미지 전체 보기 모달 */}
       {isImageViewerVisible && (
         <Modal visible={isImageViewerVisible} transparent={true}>
@@ -329,18 +379,24 @@ function PostDetailScreen({route, navigation}) {
           </View>
         </Modal>
       )}
-
       <ProfileModal
         isVisible={isModalVisible}
         selectedProfile={selectedProfile}
         closeProfileModal={closeProfileModal}
       />
-
       <PostOptionsModal
         isVisible={isPostOptionsModalVisible}
         closeModal={closePostOptionsModal}
         createRoom={() => createRoom(post.nickname)}
         deletePost={() => deletePost(post.id)}
+        postReport={openReportReasonsModal}
+      />
+      <ReportReasonsModal
+        isVisible={isReportReasonsVisible}
+        onClose={closeReportReasonsModal}
+        onSelect={reason => {
+          postReport(reason); 
+        }}
       />
       <CustomAlert
         message={alertMessage}

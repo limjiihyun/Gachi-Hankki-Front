@@ -62,7 +62,7 @@ function HomeScreen({navigation, route}) {
       if (route.params?.refresh) {
         fetchPosts();
       }
-    }, [route.params?.refresh]), 
+    }, [route.params?.refresh]),
   );
 
   const onRefresh = async () => {
@@ -142,22 +142,13 @@ function HomeScreen({navigation, route}) {
           />
           <Text style={HomeStyle.buttonText}>{selectedOption}</Text>
         </TouchableOpacity>
-        {/* {dropdownVisible && (
-          <View style={HomeStyle.dropdown}>
-            <TouchableOpacity
-              style={HomeStyle.dropdownItem}
-              onPress={() => selectOption('최신순')}>
-              <Text style={HomeStyle.dropdownText}>최신순</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={HomeStyle.dropdownItem}
-              onPress={() => selectOption('인기순')}>
-              <Text style={HomeStyle.dropdownText}>인기순</Text>
-            </TouchableOpacity>
-          </View>
-        )} */}
       </View>
-      {posts.length > 0 ? (
+
+      {isLoading ? (
+        <View style={HomeStyle.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : posts.length > 0 ? (
         <FlatList
           data={posts}
           renderItem={renderPost}
@@ -177,6 +168,7 @@ function HomeScreen({navigation, route}) {
           <Text>게시물을 등록해보세요!</Text>
         </View>
       )}
+
       <TouchableOpacity
         onPress={CreatePost}
         style={HomeStyle.plusIconContainer}>
@@ -185,4 +177,5 @@ function HomeScreen({navigation, route}) {
     </View>
   );
 }
+
 export default HomeScreen;

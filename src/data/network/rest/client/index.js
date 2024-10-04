@@ -86,7 +86,7 @@ class Client {
         const response = await HttpClient.delete(url);
         return response;
       } catch (error) {
-        throw error; 
+        throw error;
       }
     },
 
@@ -117,6 +117,42 @@ class Client {
       try {
         const response = await HttpClient.delete(
           `${API_ENDPOINTS.COMMENT_REPLIES(postId, commentId)}/${replyId}`,
+        );
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    //신고
+    reportPost: async (postId, data) => {
+      try {
+        // Include the data in the request body
+        const response = await HttpClient.post(
+          API_ENDPOINTS.REPORT_POST(postId),
+          data, // This sends the `reason` in the request body
+        );
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    reportComment: async (postId, commentId) => {
+      try {
+        const response = await HttpClient.post(
+          API_ENDPOINTS.REPORT_COMMENT(postId, commentId),
+        );
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+
+    reportReply: async (postId, commentId, replyId) => {
+      try {
+        const response = await HttpClient.post(
+          API_ENDPOINTS.REPORT_REPLY(postId, commentId, replyId),
         );
         return response;
       } catch (error) {

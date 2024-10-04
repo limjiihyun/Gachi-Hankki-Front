@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   FlatList,
   Alert,
   StyleSheet,
@@ -22,6 +21,7 @@ const ChatRoomScreen = ({route}) => {
   const loadMessages = async () => {
     try {
       const response = await client.users.getMessages(roomId);
+      console.log('bb', response.data);
       if (response.data.success) {
         const messagesArray = transformMessages(response.data.messages || {});
         messagesArray.sort(

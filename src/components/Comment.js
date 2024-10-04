@@ -78,7 +78,6 @@ const Comments = ({postId, postAuthor}) => {
 
   useEffect(() => {
     fetchComments();
-    console.log('??', postId);
   }, []);
 
   const formatDate = createdAt => {
@@ -122,7 +121,7 @@ const Comments = ({postId, postAuthor}) => {
   };
 
   const createRoom = async receiverNickname => {
-    console.log('Creating chat room with:', receiverNickname); 
+    console.log('Creating chat room with:', receiverNickname);
     try {
       const response = await client.users.createChattingRoom({
         receiverNickname,
@@ -158,14 +157,14 @@ const Comments = ({postId, postAuthor}) => {
           text: '삭제',
           onPress: async () => {
             console.log('Post ID:', postId);
-            console.log('Comment ID:', commentId); 
+            console.log('Comment ID:', commentId);
             try {
               const response = await client.users.deleteComment(
                 postId,
                 commentId,
-              ); 
+              );
               console.log('댓글이 삭제되었습니다.', response.data);
-              fetchComments(); 
+              fetchComments();
             } catch (error) {
               if (error.response) {
                 console.error(
@@ -264,7 +263,6 @@ const Comments = ({postId, postAuthor}) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
       />
-      <View style={{height: 200}} />
 
       {comments.length === 0 && (
         <View
@@ -280,24 +278,14 @@ const Comments = ({postId, postAuthor}) => {
           />
         </View>
       )}
-
-      <View
-        style={{
-          flexDirection: 'row',
-          borderColor: colors.grey300,
-          borderWidth: 0.5,
-        }}>
-        <TextInput
-          value={newComment}
-          onChangeText={setNewComment}
-          placeholder="댓글 작성하기..."
-          style={{padding: 10, flex: 1}}
-          multiline={true}
+      {comments.length === 1 && (
+        <View
+          style={{
+            height: 150,
+          }}
         />
-        <Button title="작성" onPress={addComment} />
-      </View>
+      )}
 
-      {/* Loading indicator */}
       {isLoading && (
         <View
           style={{
@@ -309,6 +297,44 @@ const Comments = ({postId, postAuthor}) => {
           <Text>댓글을 등록 중입니다...</Text>
         </View>
       )}
+
+      <View
+        style={{
+          flexDirection: 'row',
+          marginBottom: 10,
+        }}>
+        <TextInput
+          value={newComment}
+          onChangeText={setNewComment}
+          placeholder="댓글 작성하기..."
+          style={{
+            padding: 10,
+            flex: 1,
+            marginRight: 5,
+            borderColor: colors.grey400,
+            borderWidth: 1,
+            borderRadius: 10,
+          }} 
+          multiline={true}
+        />
+        <TouchableOpacity
+          style={{
+            backgroundColor: colors.lightBrown,
+            padding: 10,
+            borderRadius: 5,
+            alignItems: 'center',
+          }}
+          onPress={addComment}>
+          <Text
+            style={{
+              color: '#fff', 
+              fontSize: 16,
+              fontWeight: '500',
+            }}>
+            작성
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Profile Modal */}
       <Modal visible={isModalVisible} transparent={true}>

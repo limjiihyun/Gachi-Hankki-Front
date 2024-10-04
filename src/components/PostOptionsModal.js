@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Modal, TouchableOpacity, View, Text} from 'react-native';
 
-const PostOptionsModal = ({isVisible, closeModal, createRoom, deletePost}) => {
+const PostOptionsModal = ({
+  isVisible,
+  closeModal,
+  createRoom,
+  deletePost,
+  postReport,
+}) => {
+  const [isReporting, setIsReporting] = useState(false); 
+
+  const handleReport = (postId, reason) => {
+    postReport(postId, reason); 
+    setIsReporting(false); 
+  };
   return (
     <Modal visible={isVisible} transparent={true}>
       <TouchableOpacity
@@ -23,13 +35,19 @@ const PostOptionsModal = ({isVisible, closeModal, createRoom, deletePost}) => {
           <TouchableOpacity onPress={createRoom}>
             <Text style={{paddingVertical: 10, fontSize: 16}}>채팅하기</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log('신고하기')}>
+          <TouchableOpacity onPress={postReport}>
             <Text style={{paddingVertical: 10, fontSize: 16}}>신고하기</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={deletePost}>
             <Text style={{paddingVertical: 10, fontSize: 16}}>삭제하기</Text>
           </TouchableOpacity>
         </View>
+        {isReporting && (
+          <ReportReasons
+            postId={post.id} 
+            onReport={handleReport}
+          />
+        )}
       </TouchableOpacity>
     </Modal>
   );
