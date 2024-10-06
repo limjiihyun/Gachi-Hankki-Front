@@ -49,7 +49,16 @@ class Client {
       HttpClient.get(`${API_ENDPOINTS.GET_MESSAGES}/${roomId}/messages`),
     //유저가 참여중인 채팅방 목록 가져오기
     getRooms: async data => HttpClient.get(API_ENDPOINTS.GET_ROOM, data),
-
+    getUserProfile: async roomId => {
+      try {
+        const response = await HttpClient.get(
+          API_ENDPOINTS.GET_USER_PROFILE(roomId),
+        );
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
     addComment: async (postId, commentData) => {
       try {
         const response = await HttpClient.post(

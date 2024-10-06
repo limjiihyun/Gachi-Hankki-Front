@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import client from '../data/network/rest/client';
 import {useSelector} from 'react-redux';
@@ -23,7 +24,7 @@ const ChattingRoomListScreen = ({navigation}) => {
   const fetchRooms = async () => {
     try {
       const response = await client.users.getRooms(); // API 호출
-      console.log('!', response.data);
+      console.log('!', response.data.members);
       if (response.data.success) {
         setRooms(Object.values(response.data.rooms)); // 성공 시 방 목록 업데이트
       } else {
@@ -54,7 +55,16 @@ const ChattingRoomListScreen = ({navigation}) => {
   };
 
   return (
-    <View style={{padding: 20, backgroundColor: colors.white, height: '100%'}}>
+    <View
+      style={{
+        paddingHorizontal: 16,
+        backgroundColor: colors.white,
+        height: '100%',
+      }}>
+      <Image
+        source={require('../assets/banner2.png')}
+        style={{width: '100%', height: 90, borderRadius: 8}}
+      />
       {loading ? (
         <ActivityIndicator size="large" color={colors.primary} />
       ) : (

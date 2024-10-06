@@ -23,4 +23,6 @@ export const API_ENDPOINTS = {
 
   COMMENT_DETAIL: (postId, commentId) =>
     `/board/${postId}/comments/${commentId}`,
+  GET_USER_PROFILE: roomId => `/rooms/${roomId}/profile`,  // 상대방 프로필 조회 엔드포인트
+
 };

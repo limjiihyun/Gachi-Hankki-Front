@@ -1,6 +1,8 @@
 const colors = {
   blue: '#4B7EFF',
   brown: '#7D5F3D',
+  lightOrange: '#e6bb8e',
+  deepOrange: '#cb8f50',
   lightBrown: '#B28655',
   grey010: '#252736',
   grey900: '#121214',

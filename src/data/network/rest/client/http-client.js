@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {navigate} from '../../../../navigation/AppStackNavigation';
 
 export const Axios = axios.create({
-  //baseURL: 'http://localhost:3000/',
+  //baseURL: 'http://172.30.1.100:3000/',
   baseURL: 'http://:3000/', //집
   timeout: 10000,
   headers: {

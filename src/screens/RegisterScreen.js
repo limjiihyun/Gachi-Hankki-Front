@@ -273,7 +273,7 @@ function RegisterScreen({navigation}) {
             />
             <TitleWithRequiredText title={'생년월일'} />
             <TouchableOpacity
-              style={CreatePostStyle.dateImageContainer}
+              style={CreatePostStyle.birthdayImageContainer}
               onPress={() => setDateSelectOpen(true)}>
               <View style={{flexDirection: 'row'}}>
                 <Image
