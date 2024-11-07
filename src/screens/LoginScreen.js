@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Image, View} from 'react-native';
+import {Alert, Image, View} from 'react-native';
 import CustomTextInput from '../components/AuthStack/CustomTextInput';
 import LoginScreenStyle from '../styles/LoginScreenStyle';
 import TextButton from '../components/AuthStack/TextButton';
@@ -14,11 +14,14 @@ import {
   setProfileBio,
   setProfileNickname,
 } from '../redux/slices/user-slice';
+import {firebase} from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
 
 function LoginScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const handleEmailChange = text => {
     setEmail(text);
@@ -33,12 +36,18 @@ function LoginScreen({navigation}) {
   };
 
   const startBtn = async () => {
+    setLoading(true); 
+    if (!email || !password) {
+      Alert.alert('Validation Error', 'Please enter both email and password.');
+      setLoading(false); 
+      return;
+    }
+
     console.log('입력내용: ', email, password);
     try {
-      const response = await Client.users.login({
-        email: email,
-        password: password,
-      });
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      console.log('Firebase authentication successful');
+      const response = await Client.users.login({email, password});
       console.log('몬디');
       if (response.status === 200) {
         console.log('POST 요청 성공:', response.data);
@@ -47,8 +56,6 @@ function LoginScreen({navigation}) {
           const existingProfileResponse = await Client.users.getProfile();
           if (existingProfileResponse && existingProfileResponse.data) {
             console.log('Profile exists, navigating to main screen.');
-
-            // Profile 데이터가 존재할 때 추가 처리
             dispatch(
               setCharacterImages(
                 existingProfileResponse.data.profileImageNumber,
@@ -57,10 +64,8 @@ function LoginScreen({navigation}) {
             dispatch(setProfileNickname(existingProfileResponse.data.nickname));
             dispatch(setProfileBio(existingProfileResponse.data.bio));
             dispatch(setDepartment(existingProfileResponse.data.department));
-
             navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
           } else {
-            // Profile이 없을 경우 처리
             console.log(
               'Profile does not exist, navigating to SelectIconScreen.',
             );
@@ -75,7 +80,10 @@ function LoginScreen({navigation}) {
         }
       }
     } catch (error) {
-      console.log('POST요청 실패: ??', error.message);
+      console.log('POST 요청 실패: ??', error.message);
+      Alert.alert('Login Failed', error.message); // Show an alert with the error message
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 

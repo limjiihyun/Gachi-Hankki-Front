@@ -1,19 +1,22 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef, useCallback} from 'react';
 import {
   View,
   Text,
   TextInput,
   FlatList,
   Alert,
-  StyleSheet,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import client from '../data/network/rest/client';
 import colors from '../constants/colors/colors';
 import CHARACTER_IMAGE from '../constants/data/character-image';
 import ProfileModal from '../components/ProfileModal';
+import {firebase} from '@react-native-firebase/app';
+import ChatRoomStyle from '../styles/ChatRoomStyle';
+import MessageItem from '../components/MessageItem';
 
 const ChatRoomScreen = ({route}) => {
   const {roomId} = route.params;
@@ -22,239 +25,190 @@ const ChatRoomScreen = ({route}) => {
   const userNickname = useSelector(state => state.user.profileNickname);
   const [otherUserProfileImage, setOtherUserProfileImage] = useState(null);
   const [otherUserNickname, setOtherUserNickname] = useState('');
-  const [otherUserBio, setOtherUserBio] = useState('');
-  const [otherUserDepartment, setOtherUserDepartment] = useState('');
-
   const [isModalVisible, setModalVisible] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState(null); 
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const flatListRef = useRef(null);
+  const [lastMessageKey, setLastMessageKey] = useState(null);
 
-  const loadMessages = async () => {
-    try {
-      const response = await client.users.getMessages(roomId);
-      console.log('bb', response.data);
-      if (response.data.success) {
-        const messagesArray = transformMessages(response.data.messages || {});
-        messagesArray.sort(
-          (a, b) => new Date(a.timestamp) - new Date(b.timestamp),
-        );
-        setMessages(messagesArray);
-      } else {
-        Alert.alert(
-          'Error',
-          response.data.message || 'Failed to load messages',
-        );
-      }
-    } catch (error) {
-      console.error('Error loading messages:', error);
-      Alert.alert('Error', 'An error occurred while loading messages');
-    }
-  };
+  const handleNewMessage = useCallback(
+    snapshot => {
+      const newMessage = {
+        id: snapshot.key,
+        ...snapshot.val(),
+        isSent: snapshot.val().sender === userNickname,
+      };
 
-  const [profileData, setProfileData] = useState(null);
-
-  const loadUserProfile = async () => {
-    try {
-      const profileData = await client.users.getUserProfile(roomId);
-      const profileImage = CHARACTER_IMAGE.find(
-        image => image.id === profileData.profile.profileImageNumber,
-      );
-
-      setOtherUserProfileImage(
-        profileImage ? profileImage.src : require('../assets/character/1.png'),
-      );
-      setOtherUserNickname(profileData.profile.nickname);
-      setOtherUserBio(profileData.profile.bio);
-      setOtherUserDepartment(profileData.profile.department);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
-  const renderProfileImage = () => {
-    if (profileData) {
-      return (
-        <View style={{marginTop: 10}}>
-          <Image
-            source={profileData.profileImage}
-            style={{width: 30, height: 30}}
-          />
-        </View>
-      );
-    }
-    return null;
-  };
-
-  const goToUserProfile = () => {
-    if (otherUserProfileImage && otherUserNickname) {
-      setSelectedProfile({
-        profileImage: otherUserProfileImage,
-        nickname: otherUserNickname,
-        bio: otherUserBio, 
-        department: otherUserDepartment, 
+      setMessages(prevMessages => {
+        if (!prevMessages.some(msg => msg.id === newMessage.id)) {
+          return [...prevMessages, newMessage];
+        }
+        return prevMessages;
       });
-      setModalVisible(true); 
-    }
-  };
+    },
+    [userNickname],
+  );
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim()) return; // 빈 메시지 방지
+
+    const messagesRef = firebase
+      .database()
+      //.limitToFirst(10)
+      .ref(`ChatRooms/${roomId}/messages`);
+    const lastMessagesRef = firebase
+      .database()
+      .ref(`ChatRooms/${roomId}/lastMessage`);
+    const lastUpdatedRef = firebase
+      .database()
+      .ref(`ChatRooms/${roomId}/lastUpdated`);
+    const timestamp = new Date().toISOString(); // ISO 포맷으로 현재 시간 저장
 
     try {
-      const senderNickname = userNickname;
-      const response = await client.users.sendMessage(
-        roomId,
-        senderNickname,
-        newMessage,
-      );
+      // 메시지를 messagesRef에 푸시
+      await messagesRef.push({
+        sender: userNickname,
+        text: newMessage,
+        timestamp,
+      });
+      setNewMessage('');
 
-      if (response.data.success) {
-        const messageToSend = {
-          id: Date.now().toString(),
-          text: newMessage,
-          sender: senderNickname,
-          timestamp: Date.now(),
-          isSent: true,
-        };
+      // 마지막 메시지와 마지막 업데이트 시간을 방 정보에 각각 업데이트
+      await lastMessagesRef.set(newMessage); // 마지막 메시지 텍스트만 저장
+      await lastUpdatedRef.set(timestamp); // 마지막 업데이트 시간 저장
 
-        setMessages(prevMessages => [...prevMessages, messageToSend]);
-        setNewMessage('');
-      } else {
-        Alert.alert('Error', 'Failed to send message');
-      }
+      //setNewMessage(''); // 입력 필드 비우기
+      flatListRef.current?.scrollToEnd({animated: true}); // 화면을 아래로 스크롤
     } catch (error) {
-      console.error('Error sending message:', error);
-      if (error.response) {
-        Alert.alert(
-          'Error',
-          `An error occurred while sending the message: ${error.response.data.message}`,
-        );
-      } else {
-        Alert.alert('Error', 'An error occurred while sending the message');
-      }
+      console.error('메시지 전송 실패:', error);
+      Alert.alert('Error', '메시지 전송 실패');
     }
-  };
-
-  const transformMessages = messagesObj => {
-    return Object.keys(messagesObj).map(key => ({
-      id: key,
-      ...messagesObj[key],
-      isSent: messagesObj[key].sender === userNickname,
-      timestamp: messagesObj[key].timestamp || Date.now(),
-    }));
   };
 
   useEffect(() => {
-    loadMessages();
-    loadUserProfile();
-  }, []);
+    if (!roomId) return;
+    const messagesRef = firebase.database().ref(`ChatRooms/${roomId}/messages`);
+    //.limitToLast(10);
+    messagesRef.on('child_added', handleNewMessage);
+
+    return () => {
+      messagesRef.off('child_added', handleNewMessage);
+    };
+  }, [roomId, handleNewMessage]);
+
+  const fetchMoreMessages = async () => {
+    if (isFetchingMore || !lastMessageKey) return;
+
+    setIsFetchingMore(true);
+
+    try {
+      const messagesRef = firebase
+        .database()
+        .ref(`ChatRooms/${roomId}/messages`)
+        .orderByKey()
+        .endAt(lastMessageKey)
+        .limitToLast(10);
+
+      const snapshot = await messagesRef.once('value');
+      const newMessages = [];
+
+      snapshot.forEach(childSnapshot => {
+        if (childSnapshot.exists()) {
+          newMessages.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val(),
+            isSent: childSnapshot.val().sender === userNickname,
+          });
+        }
+      });
+
+      if (newMessages.length > 0) {
+        setMessages(prevMessages => [
+          ...newMessages.reverse(), // Add older messages at the top
+          ...prevMessages,
+        ]);
+        setLastMessageKey(newMessages[0]?.id || null);
+      }
+    } catch (error) {
+      console.error('Error loading older messages:', error);
+      Alert.alert('Error', 'Failed to load more messages');
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+
+  const handleScroll = event => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    if (offsetY <= 0 && !isFetchingMore) {
+      fetchMoreMessages(); // Trigger fetching more messages when scrolled to the top
+    }
+  };
+
+  useEffect(() => {
+    if (roomId) {
+      fetchMoreMessages(); // Initial fetch
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    const messagesRef = firebase.database().ref(`ChatRooms/${roomId}/messages`);
+    messagesRef.on('child_added', handleNewMessage);
+
+    return () => {
+      messagesRef.off('child_added', handleNewMessage);
+    };
+  }, [roomId, handleNewMessage]);
 
   const renderItem = ({item}) => {
     return (
-      <View
-        style={{
-          flexDirection: item.isSent ? 'row-reverse' : 'row',
-          alignItems: 'center',
-          marginVertical: 5,
-          paddingHorizontal: 8,
-        }}>
-        {/* 다른 사용자의 메시지와 프로필 이미지, 닉네임을 렌더링 */}
-        {!item.isSent && otherUserProfileImage && (
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <TouchableOpacity onPress={goToUserProfile}>
-              <Image
-                source={otherUserProfileImage}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 24,
-                  marginTop: 20,
-                  marginRight: 10,
-                }}
-              />
-            </TouchableOpacity>
-            <View>
-              <Text style={{marginBottom: 5}}>{otherUserNickname}</Text>
-              <View
-                style={{
-                  padding: 10,
-                  backgroundColor: colors.grey200,
-                  borderRadius: 10,
-                }}>
-                <Text>{item.text}</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* 현재 사용자의 메시지를 렌더링 */}
-        {item.isSent && (
-          <View
-            style={{
-              padding: 10,
-              backgroundColor: colors.lightOrange,
-              borderRadius: 10,
-            }}>
-            <Text>{item.text}</Text>
-          </View>
-        )}
-      </View>
+      <MessageItem
+        item={item}
+        otherUserNickname={otherUserNickname}
+        otherUserProfileImage={otherUserProfileImage}
+        //goToUserProfile={goToUserProfile}
+      />
     );
   };
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      flatListRef.current?.scrollToEnd({animated: true});
+    }
+  }, [messages]);
+
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: colors.white}}>
       <FlatList
+        ref={flatListRef}
         data={messages}
         keyExtractor={item => item.id}
         renderItem={renderItem}
         style={{marginTop: 10}}
+        onContentSizeChange={() =>
+          flatListRef.current?.scrollToEnd({animated: true})
+        }
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
       />
-      <View style={styles.inputContainer}>
+      <View style={ChatRoomStyle.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={ChatRoomStyle.input}
           placeholder="메시지를 입력하세요"
           value={newMessage}
           onChangeText={setNewMessage}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>전송</Text>
+        <TouchableOpacity
+          style={ChatRoomStyle.sendButton}
+          onPress={sendMessage}>
+          <Text style={ChatRoomStyle.sendButtonText}>전송</Text>
         </TouchableOpacity>
       </View>
       <ProfileModal
         isVisible={isModalVisible}
-        selectedProfile={selectedProfile}
+        //selectedProfile={selectedProfile}
         closeProfileModal={() => setModalVisible(false)}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
-  },
-  input: {
-    flex: 1,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginRight: 10,
-  },
-  sendButton: {
-    backgroundColor: colors.lightBrown,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  sendButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
 
 export default ChatRoomScreen;

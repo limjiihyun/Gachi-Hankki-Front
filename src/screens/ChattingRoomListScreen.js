@@ -1,32 +1,64 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
-  TextInput,
-  Button,
-  Alert,
   FlatList,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Image,
+  Alert,
 } from 'react-native';
 import client from '../data/network/rest/client';
 import {useSelector} from 'react-redux';
 import colors from '../constants/colors/colors';
+import {firebase} from '@react-native-firebase/app';
+import {useFocusEffect} from '@react-navigation/native';
 
 const ChattingRoomListScreen = ({navigation}) => {
-  const [rooms, setRooms] = useState([]); // 방 목록 상태 추가
+  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const userNickname = useSelector(state => state.user.profileNickname);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRooms();
+    }, []),
+  );
 
   // 방 목록 가져오는 함수
   const fetchRooms = async () => {
     try {
-      const response = await client.users.getRooms(); // API 호출
-      console.log('!', response.data.members);
+      const response = await client.users.getRooms(); 
+
       if (response.data.success) {
-        setRooms(Object.values(response.data.rooms)); // 성공 시 방 목록 업데이트
+        const updatedRooms = Object.values(response.data.rooms).filter(
+          room => room.members.includes(userNickname), 
+        );
+
+        updatedRooms.forEach(room => {
+          const roomRef = firebase.database().ref(`ChatRooms/${room.roomId}`);
+          roomRef.on('value', snapshot => {
+            const roomData = snapshot.val();
+            setRooms(prevRooms => {
+              const roomIndex = prevRooms.findIndex(
+                r => r.roomId === room.roomId,
+              );
+              if (roomIndex !== -1) {
+                const updatedPrevRooms = [...prevRooms];
+                updatedPrevRooms[roomIndex] = {
+                  ...updatedPrevRooms[roomIndex],
+                  lastMessage: roomData.lastMessage || 'No messages yet',
+                };
+                return updatedPrevRooms;
+              } else {
+                return prevRooms;
+              }
+            });
+          });
+        });
+
+        setRooms(updatedRooms); 
       } else {
         Alert.alert('Error', 'Failed to fetch rooms');
       }
@@ -46,10 +78,6 @@ const ChattingRoomListScreen = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    fetchRooms();
-  }, []);
-
   const goToChatRoom = roomId => {
     navigation.navigate('ChatRoomScreen', {roomId});
   };
@@ -68,7 +96,6 @@ const ChattingRoomListScreen = ({navigation}) => {
       {loading ? (
         <ActivityIndicator size="large" color={colors.primary} />
       ) : (
-        // 방 목록 출력
         <FlatList
           data={rooms}
           keyExtractor={item => item.roomId}
@@ -110,24 +137,6 @@ const ChattingRoomListScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    flex: 1,
-    backgroundColor: '#f9f9f9',
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-  },
   roomItem: {
     padding: 15,
     borderBottomWidth: 1,

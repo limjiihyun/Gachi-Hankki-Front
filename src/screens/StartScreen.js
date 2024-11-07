@@ -23,7 +23,6 @@ const StartScreen = ({navigation}) => {
           <Text>같이 한끼 하실래요?</Text>
         </View>
         <BottomBarButton onPress={StartButton} title={'시작하기'} />
-        <BottomBarButton onPress={MainButton} title={'메인화면'} />
       </View>
     </View>
   );

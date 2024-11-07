@@ -58,7 +58,7 @@ const CreatePostStyle = StyleSheet.create({
     marginTop: 12,
   },
   birthdayImageContainer: {
-    width: '48%',
+    width: '100%',
     height: 48,
     borderWidth: 1,
     borderRadius: 10,

@@ -197,7 +197,7 @@ function RegisterScreen({navigation}) {
             <View style={{flexDirection: 'row', marginRight: 16}}>
               <CustomShortTextInput
                 title={'아이디'}
-                placeholder={'아이디(한밭대 구글이메일)'}
+                placeholder={'아이디(한밭대 이메일)'}
                 value={email}
                 onChangeText={handleEmailChange}
               />
