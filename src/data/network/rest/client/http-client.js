@@ -3,7 +3,8 @@ import {API_ENDPOINTS} from './api-endpoint';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const Axios = axios.create({
-  baseURL: 'http://192.168.219.153:3000/',
+  //baseURL: 'https://gachi-hankki-back.onrender.com',
+  baseURL: 'http://192.168.219.111:3000',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

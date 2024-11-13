@@ -172,9 +172,19 @@ function RegisterScreen({navigation}) {
             setAlertMessage('이미 가입된 이메일입니다.');
           } else if (error.response.status === 422) {
             setAlertMessage('한밭대 이메일 주소를 입력하세요.');
+          } else {
+            setAlertMessage(`오류 발생: ${error.response.status}`);
           }
+        } else if (error.request) {
+          console.log('No response received:', error.request);
+          setAlertMessage(
+            '서버에 응답이 없습니다. 네트워크 상태를 확인하세요.',
+          );
         } else {
-          setAlertMessage('네트워크 오류가 발생했습니다.');
+          console.log('Error during request setup:', error.message);
+          setAlertMessage(
+            '요청을 설정하는 중 오류가 발생했습니다. 다시 시도해주세요.',
+          );
         }
         setModalVisible(true);
       }

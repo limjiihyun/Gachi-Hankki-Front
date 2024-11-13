@@ -16,10 +16,13 @@ import {
 } from '../redux/slices/user-slice';
 import {firebase} from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth';
+import CustomSpinner from '../components/CustomSpinner';
+import {CommonActions} from '@react-navigation/native';
 
 function LoginScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
@@ -36,25 +39,37 @@ function LoginScreen({navigation}) {
   };
 
   const startBtn = async () => {
-    setLoading(true); 
+    setLoading(true);
     if (!email || !password) {
       Alert.alert('Validation Error', 'Please enter both email and password.');
-      setLoading(false); 
+      setLoading(false);
       return;
     }
 
-    console.log('입력내용: ', email, password);
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
-      console.log('Firebase authentication successful');
+      const fireReturn = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password);
+      console.log('Firebase authentication successful:', fireReturn);
+
+      const idToken = await fireReturn.user.getIdToken();
+      console.log('ID Token:', idToken);
       const response = await Client.users.login({email, password});
-      console.log('몬디');
+
+      console.log('몬디', response);
       if (response.status === 200) {
         console.log('POST 요청 성공:', response.data);
         setAuthToken(response.data.accessToken);
         try {
           const existingProfileResponse = await Client.users.getProfile();
-          if (existingProfileResponse && existingProfileResponse.data) {
+
+          if (existingProfileResponse.status === 404) {
+            console.log('No profile found, navigating to SelectIconScreen.');
+            navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
+          } else if (
+            existingProfileResponse.status === 200 &&
+            existingProfileResponse.data
+          ) {
             console.log('Profile exists, navigating to main screen.');
             dispatch(
               setCharacterImages(
@@ -64,11 +79,9 @@ function LoginScreen({navigation}) {
             dispatch(setProfileNickname(existingProfileResponse.data.nickname));
             dispatch(setProfileBio(existingProfileResponse.data.bio));
             dispatch(setDepartment(existingProfileResponse.data.department));
-            navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
+            navigation.replace('MainStack', {screen: 'MainBottomScreen'});
           } else {
-            console.log(
-              'Profile does not exist, navigating to SelectIconScreen.',
-            );
+            console.log('Unexpected response format');
             navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
           }
         } catch (error) {
@@ -81,14 +94,20 @@ function LoginScreen({navigation}) {
       }
     } catch (error) {
       console.log('POST 요청 실패: ??', error.message);
-      Alert.alert('Login Failed', error.message); // Show an alert with the error message
+      Alert.alert('Login Failed', error.message);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   return (
     <View style={LoginScreenStyle.container}>
+      {loading && (
+        <View style={LoginScreenStyle.overlay}>
+          <CustomSpinner />
+        </View>
+      )}
+
       <View style={LoginScreenStyle.loginContainer}>
         <View style={LoginScreenStyle.imageContainer}>
           <Image
@@ -107,7 +126,9 @@ function LoginScreen({navigation}) {
           inputValue={password}
           onChangeText={handlePasswordChange}
         />
-        <BottomBarButton title={'시작하기'} onPress={startBtn} />
+        {loading ? null : (
+          <BottomBarButton title={'시작하기'} onPress={startBtn} />
+        )}
         <View style={LoginScreenStyle.rowContainer}>
           <TextButton title={'비밀번호 찾기'} />
           <View style={LoginScreenStyle.line} />

@@ -13,7 +13,9 @@ import {
   setProfileNickname,
 } from '../redux/slices/user-slice';
 import Client from '../data/network/rest/client';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
 function ProfileSettingScreen({navigation, route}) {
   const userSlice = useSelector(state => state.user);
   const dispatch = useDispatch();
@@ -80,7 +82,8 @@ function ProfileSettingScreen({navigation, route}) {
         params: {refresh: true},
       });
     } catch (error) {
-      console.log('Error config:', error);
+      console.log('Error config:', error.message);
+      console.log('Error response:', error.response?.data || error);
     }
   };
 

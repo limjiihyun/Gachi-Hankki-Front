@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {useSelector} from 'react-redux';
-import client from '../data/network/rest/client';
 import colors from '../constants/colors/colors';
 import CHARACTER_IMAGE from '../constants/data/character-image';
 import ProfileModal from '../components/ProfileModal';
@@ -51,10 +50,7 @@ const ChatRoomScreen = ({route}) => {
   const sendMessage = async () => {
     if (!newMessage.trim()) return; // 빈 메시지 방지
 
-    const messagesRef = firebase
-      .database()
-      //.limitToFirst(10)
-      .ref(`ChatRooms/${roomId}/messages`);
+    const messagesRef = firebase.database().ref(`ChatRooms/${roomId}/messages`);
     const lastMessagesRef = firebase
       .database()
       .ref(`ChatRooms/${roomId}/lastMessage`);
@@ -76,7 +72,6 @@ const ChatRoomScreen = ({route}) => {
       await lastMessagesRef.set(newMessage); // 마지막 메시지 텍스트만 저장
       await lastUpdatedRef.set(timestamp); // 마지막 업데이트 시간 저장
 
-      //setNewMessage(''); // 입력 필드 비우기
       flatListRef.current?.scrollToEnd({animated: true}); // 화면을 아래로 스크롤
     } catch (error) {
       console.error('메시지 전송 실패:', error);
@@ -84,48 +79,71 @@ const ChatRoomScreen = ({route}) => {
     }
   };
 
+  //firebase 채팅방에서 새 메시지를 수신하고 새메시지가 추가되면 구성요소를 업데이트
+  // 구성요소가 마운트 해제되거나 채팅방이 변경될 때 메모리 누수를 방지하기 위해
+  // 리스너가 적절하게 정리되도록 함.
   useEffect(() => {
+    // roomId가 있는지 확인
     if (!roomId) return;
+    // firebase 참조 설정
     const messagesRef = firebase.database().ref(`ChatRooms/${roomId}/messages`);
-    //.limitToLast(10);
+
+    // child_add 이벤트 구독
     messagesRef.on('child_added', handleNewMessage);
 
+    //리스너 정리
     return () => {
       messagesRef.off('child_added', handleNewMessage);
     };
   }, [roomId, handleNewMessage]);
 
   const fetchMoreMessages = async () => {
+    // 현재 메시지를 불러오는 중이면, 중복된 요청을 방지하기 위해 실행 중지
+    // lastMessageKey가 없다면, 더이상 불러올 메시지가 없다는 뜻
     if (isFetchingMore || !lastMessageKey) return;
 
+    // 메시지를 사져오는 중임을 나타냄 -> 로딩 인디케이터 표시할 때 유용
     setIsFetchingMore(true);
 
     try {
+      // firebase 쿼리 설정
       const messagesRef = firebase
         .database()
         .ref(`ChatRooms/${roomId}/messages`)
         .orderByKey()
         .endAt(lastMessageKey)
-        .limitToLast(10);
+        .limitToStart(10);
 
+      // 데이터 가져오기
+      // once('value')는 한번만 데이터를 가져오는 요청을 보냅니다.
       const snapshot = await messagesRef.once('value');
       const newMessages = [];
 
+      // 가져온 메시지 처리
+      // snapshot.forEach() : snapshot에 포함된 각 메시지를 순회하면서처리
       snapshot.forEach(childSnapshot => {
+        // 메시지가 존재하는지 확인
         if (childSnapshot.exists()) {
           newMessages.push({
+            //각 메시지의 고유한 id를 가져옴
             id: childSnapshot.key,
+            // 메시지의 데이터 가져옴(보낸사람, 메시지 내용)
             ...childSnapshot.val(),
+            // 해당 메시지가 현재 사용자가 보낸 메시지인지 확인하는 필드
             isSent: childSnapshot.val().sender === userNickname,
           });
         }
       });
 
+      // 상태 업데이트
       if (newMessages.length > 0) {
+        // 새로운 메시지가 있다면 메시지 목록 업데이트
         setMessages(prevMessages => [
-          ...newMessages.reverse(), // Add older messages at the top
+          // 새로 가져온 메시지를 역순으로 정렬하여 상단에 추가
+          ...newMessages.reverse(),
           ...prevMessages,
         ]);
+        // 가장 오래된 메시지의 id를 lastMessageKey로 설정하여, 다음번에 이전 메시지를 불러올 떄 기준
         setLastMessageKey(newMessages[0]?.id || null);
       }
     } catch (error) {
@@ -188,6 +206,11 @@ const ChatRoomScreen = ({route}) => {
         }
         onScroll={handleScroll}
         scrollEventThrottle={16}
+        ListFooterComponent={
+          isFetchingMore ? (
+            <ActivityIndicator size="large" color={colors.primary} />
+          ) : null
+        }
       />
       <View style={ChatRoomStyle.inputContainer}>
         <TextInput
