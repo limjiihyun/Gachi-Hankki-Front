@@ -70,7 +70,7 @@ function HomeScreen({navigation, route}) {
     await fetchPosts(false);
   };
 
-  const renderPost = ({item}) => {
+  const renderPostItem = ({item}) => {
     const defaultImage = require('../assets/character/1.png');
 
     const imageUrl =
@@ -151,8 +151,8 @@ function HomeScreen({navigation, route}) {
       ) : posts.length > 0 ? (
         <FlatList
           data={posts}
-          renderItem={renderPost}
-          keyExtractor={(item, index) => item.id + index}
+          renderItem={renderPostItem}
+          keyExtractor={item => item.id}
           contentContainerStyle={HomeStyle.listContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
