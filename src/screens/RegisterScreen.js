@@ -239,6 +239,7 @@ function RegisterScreen({navigation}) {
             />
             <CustomTextInput
               placeholder={'비밀번호 확인'}
+              secureTextEntry={true}
               inputValue={confirmPassword}
               onChangeText={handleConfirmPasswordChange}
             />

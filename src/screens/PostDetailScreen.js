@@ -27,7 +27,7 @@ function PostDetailScreen({route, navigation}) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [isAlertModalVisible, setAlertModalVisible] = useState(false);
-  const [isReportReasonsVisible, setReportReasonsVisible] = useState(false); 
+  const [isReportReasonsVisible, setReportReasonsVisible] = useState(false);
 
   const defaultImage = require('../assets/character/1.png');
 
@@ -123,7 +123,7 @@ function PostDetailScreen({route, navigation}) {
       if (error.response) {
         const errorMessage =
           error.response.data.message ||
-          'An error occurred while processing your request.';
+          '2An error occurred while processing your request.';
         Alert.alert('Error', errorMessage);
       } else if (error.request) {
         console.error('Request error:', error.request);
@@ -157,14 +157,23 @@ function PostDetailScreen({route, navigation}) {
               });
             } catch (error) {
               if (error.response) {
-                console.error(
-                  error.response.data.message || error.response.data.error,
-                );
+                const errorMessage =
+                  error.response.data.message || error.response.data.error;
+
+                if (errorMessage.includes('권한이 없습니다')) {
+                  Alert.alert(
+                    '권한 오류',
+                    '이 게시물을 삭제할 수 있는 권한이 없습니다.',
+                  );
+                } else {
+                  Alert.alert('오류', errorMessage);
+                }
               } else {
                 console.error(
                   '게시글 삭제 중 오류가 발생했습니다.',
                   error.message,
                 );
+                Alert.alert('오류', '게시글 삭제 중 오류가 발생했습니다.');
               }
             }
           },
@@ -395,7 +404,7 @@ function PostDetailScreen({route, navigation}) {
         isVisible={isReportReasonsVisible}
         onClose={closeReportReasonsModal}
         onSelect={reason => {
-          postReport(reason); 
+          postReport(reason);
         }}
       />
       <CustomAlert

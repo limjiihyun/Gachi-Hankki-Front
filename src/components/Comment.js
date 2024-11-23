@@ -15,7 +15,6 @@ import client from '../data/network/rest/client';
 import colors from '../constants/colors/colors';
 import {useNavigation} from '@react-navigation/native';
 import CHARACTER_IMAGE from '../constants/data/character-image';
-import PostDetailStyle from '../styles/PostDetailStyle';
 
 const Comments = ({postId, postAuthor}) => {
   const [comments, setComments] = useState([]);
@@ -142,7 +141,7 @@ const Comments = ({postId, postAuthor}) => {
           error.response.data.message || 'An error occurred.';
         Alert.alert('Error', errorMessage);
       } else {
-        Alert.alert('Error', 'An error occurred while setting up the request');
+        Alert.alert('Error', '3An error occurred while setting up the request');
       }
     }
   };
@@ -167,14 +166,20 @@ const Comments = ({postId, postAuthor}) => {
               fetchComments();
             } catch (error) {
               if (error.response) {
-                console.error(
-                  error.response.data.message || error.response.data.error,
-                );
+                const errorMessage =
+                  error.response.data.message || error.response.data.error;
+                console.error(errorMessage);
+
+                if (errorMessage.includes('권한이 없습니다')) {
+                  Alert.alert(
+                    '권한 오류',
+                    '이 댓글을 삭제할 수 있는 권한이 없습니다.',
+                  );
+                } else {
+                  Alert.alert('오류', errorMessage);
+                }
               } else {
-                console.error(
-                  '댓글 삭제 중 오류가 발생했습니다.',
-                  error.message,
-                );
+                Alert.alert('오류', '댓글 삭제 중 오류가 발생했습니다.');
               }
             }
           },
@@ -285,6 +290,13 @@ const Comments = ({postId, postAuthor}) => {
           }}
         />
       )}
+      {comments.length === 2 && (
+        <View
+          style={{
+            height: 75,
+          }}
+        />
+      )}
 
       {isLoading && (
         <View
@@ -314,7 +326,7 @@ const Comments = ({postId, postAuthor}) => {
             borderColor: colors.grey400,
             borderWidth: 1,
             borderRadius: 10,
-          }} 
+          }}
           multiline={true}
         />
         <TouchableOpacity
@@ -327,7 +339,7 @@ const Comments = ({postId, postAuthor}) => {
           onPress={addComment}>
           <Text
             style={{
-              color: '#fff', 
+              color: '#fff',
               fontSize: 16,
               fontWeight: '500',
             }}>

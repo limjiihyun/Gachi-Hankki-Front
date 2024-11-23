@@ -4,12 +4,7 @@ import ChatRoomStyle from '../styles/ChatRoomStyle';
 import colors from '../constants/colors/colors';
 
 const MessageItem = memo(
-  ({
-    item,
-    otherUserNickname,
-    otherUserProfileImage,
-    goToUserProfile,
-  }) => {
+  ({item, otherUserNickname, otherUserProfileImage, goToUserProfile}) => {
     const isSent = item.isSent;
     const messageTimestamp = new Date(item.timestamp).toLocaleTimeString();
 
@@ -36,28 +31,33 @@ const MessageItem = memo(
           </View>
         ) : (
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {otherUserProfileImage && (
+            {
               <TouchableOpacity onPress={goToUserProfile}>
                 <Image
-                  source={{uri: otherUserProfileImage}}
+                  source={
+                    otherUserProfileImage
+                      ? otherUserProfileImage
+                      : require('../assets/character/1.png')
+                  }
                   style={{
                     width: 40,
                     height: 40,
                     borderRadius: 20,
-                    marginRight: 10,
+                    marginRight: 8,
                   }}
                 />
               </TouchableOpacity>
-            )}
+            }
             <View>
-              <Text style={{marginBottom: 5, fontWeight: 'bold'}}>
+              <Text style={{fontSize: 13, marginBottom: 4}}>
                 {otherUserNickname}
               </Text>
               <View
                 style={{
-                  padding: 10,
+                  paddingVertical: 7,
+                  paddingHorizontal: 10,
                   backgroundColor: colors.grey200,
-                  borderRadius: 10,
+                  borderRadius: 6,
                   maxWidth: '100%',
                 }}>
                 <Text style={ChatRoomStyle.messageText}>{item.text}</Text>

@@ -4,27 +4,12 @@ import StartScreenStyle from '../styles/StartScreenStyle';
 import BottomBarButton from '../components/AuthStack/BottomBarButton';
 import {useFocusEffect} from '@react-navigation/native';
 import Client from '../data/network/rest/client';
-import {ForceNavigationType} from '../constants/data/enums';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {defaultsHeadersCommon} from '../data/network/rest/client/http-client';
 
 const StartScreen = ({navigation}) => {
   const StartButton = () => {
     navigation.replace('AuthStack', {screen: 'LoginScreen'});
-  };
-
-  const MainButton = () => {
-    navigation.navigate('MainStack', {screen: 'MainBottomScreen'});
-  };
-
-  const getNavigationPath = response => {
-    if (response.status != 200) {
-      return ForceNavigationType.LOGIN;
-    }
-    if (response.data.profile === null) {
-      return ForceNavigationType.PROFILE;
-    }
-    return null;
   };
 
   // AsyncStorage에 AccessToken 을 확인 후,
@@ -46,7 +31,7 @@ const StartScreen = ({navigation}) => {
 
           if (existingProfileResponse.status === 404) {
             console.log('No profile found, navigating to SelectIconScreen.');
-            navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
+            navigation.replace('MainStack', {screen: 'SelectIconScreen'});
           } else if (
             existingProfileResponse.status === 200 &&
             existingProfileResponse.data
@@ -63,11 +48,10 @@ const StartScreen = ({navigation}) => {
             navigation.replace('MainStack', {screen: 'MainBottomScreen'});
           } else {
             console.log('Unexpected response format');
-            navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
+            navigation.replace('MainStack', {screen: 'SelectIconScreen'});
           }
         } catch (error) {
-          console.error('Error fetching profile:33', error);
-          navigation.navigate('AuthStack', {screen: 'LoginScreen'});
+          navigation.replace('AuthStack', {screen: 'LoginScreen'});
         }
       };
 

@@ -14,6 +14,7 @@ const ChatRoomStyle = StyleSheet.create({
   },
   messageText: {
     color: colors.black,
+    fontSize: 12,
   },
   myMessageTimestamp: {
     fontSize: 10,

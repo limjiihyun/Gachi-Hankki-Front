@@ -16,8 +16,9 @@ import ProfileModal from '../components/ProfileModal';
 import {firebase} from '@react-native-firebase/app';
 import ChatRoomStyle from '../styles/ChatRoomStyle';
 import MessageItem from '../components/MessageItem';
+import client from '../data/network/rest/client';
 
-const ChatRoomScreen = ({route}) => {
+const ChatRoomScreen = ({route, navigation}) => {
   const {roomId} = route.params;
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -25,9 +26,67 @@ const ChatRoomScreen = ({route}) => {
   const [otherUserProfileImage, setOtherUserProfileImage] = useState(null);
   const [otherUserNickname, setOtherUserNickname] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [otherUserDepartment, setOtherUserDepartment] = useState('');
+  const [otherUserBio, setOtherUserBio] = useState('');
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const flatListRef = useRef(null);
   const [lastMessageKey, setLastMessageKey] = useState(null);
+
+  useEffect(() => {
+    if (roomId) {
+      const fetchOtherUserProfile = async () => {
+        try {
+          const profileData = await client.users.getUserProfile(roomId);
+          if (profileData.success && profileData.profile) {
+            const profileImageNumber = profileData.profile.profileImageNumber;
+            const profileImage = CHARACTER_IMAGE.find(
+              image => image.id === profileImageNumber,
+            );
+
+            setOtherUserProfileImage(
+              profileImage
+                ? profileImage.src
+                : require('../assets/character/1.png'),
+            );
+            setOtherUserNickname(profileData.profile.nickname);
+            setOtherUserDepartment(profileData.profile.department);
+            setOtherUserBio(profileData.profile.bio);
+          } else {
+            Alert.alert(
+              'Error',
+              'User profile data is missing or could not be fetched',
+            );
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            Alert.alert('알림', '이 사용자는 계정을 탈퇴하였습니다.', [
+              {
+                text: 'OK',
+                onPress: () => {
+                  navigation.goBack();
+                },
+              },
+            ]);
+          } else {
+            Alert.alert('Error', 'Failed to fetch the user profile');
+          }
+        }
+      };
+
+      fetchOtherUserProfile();
+    }
+  }, [roomId]);
+
+  const renderItem = ({item}) => {
+    return (
+      <MessageItem
+        item={item}
+        otherUserNickname={otherUserNickname}
+        otherUserProfileImage={otherUserProfileImage || ''}
+        goToUserProfile={() => setModalVisible(true)}
+      />
+    );
+  };
 
   const handleNewMessage = useCallback(
     snapshot => {
@@ -74,7 +133,7 @@ const ChatRoomScreen = ({route}) => {
 
       flatListRef.current?.scrollToEnd({animated: true}); // 화면을 아래로 스크롤
     } catch (error) {
-      console.error('메시지 전송 실패:', error);
+      console.error('메시지 전송 실패:', error.message);
       Alert.alert('Error', '메시지 전송 실패');
     }
   };
@@ -157,13 +216,13 @@ const ChatRoomScreen = ({route}) => {
   const handleScroll = event => {
     const offsetY = event.nativeEvent.contentOffset.y;
     if (offsetY <= 0 && !isFetchingMore) {
-      fetchMoreMessages(); // Trigger fetching more messages when scrolled to the top
+      fetchMoreMessages(); 
     }
   };
 
   useEffect(() => {
     if (roomId) {
-      fetchMoreMessages(); // Initial fetch
+      fetchMoreMessages(); 
     }
   }, [roomId]);
 
@@ -175,17 +234,6 @@ const ChatRoomScreen = ({route}) => {
       messagesRef.off('child_added', handleNewMessage);
     };
   }, [roomId, handleNewMessage]);
-
-  const renderItem = ({item}) => {
-    return (
-      <MessageItem
-        item={item}
-        otherUserNickname={otherUserNickname}
-        otherUserProfileImage={otherUserProfileImage}
-        //goToUserProfile={goToUserProfile}
-      />
-    );
-  };
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -227,7 +275,12 @@ const ChatRoomScreen = ({route}) => {
       </View>
       <ProfileModal
         isVisible={isModalVisible}
-        //selectedProfile={selectedProfile}
+        selectedProfile={{
+          nickname: otherUserNickname,
+          profileImage: otherUserProfileImage,
+          department: otherUserDepartment,
+          bio: otherUserBio,
+        }}
         closeProfileModal={() => setModalVisible(false)}
       />
     </View>

@@ -41,7 +41,7 @@ function LoginScreen({navigation}) {
   const startBtn = async () => {
     setLoading(true);
     if (!email || !password) {
-      Alert.alert('Validation Error', 'Please enter both email and password.');
+      Alert.alert('로그인 오류', '아이디 혹은 비밀번호를 확인하세요');
       setLoading(false);
       return;
     }
@@ -59,13 +59,18 @@ function LoginScreen({navigation}) {
       console.log('몬디', response);
       if (response.status === 200) {
         console.log('POST 요청 성공:', response.data);
-        setAuthToken(response.data.accessToken);
+        const accessToken = response.data.accessToken;
+        const refreshToken = response.data.refreshToken;
+        if (accessToken && refreshToken) {
+          await setAuthToken({access: accessToken, refresh: refreshToken}); // 토큰을 setAuthToken에 전달
+        }
+        //setAuthToken(response.data.accessToken);
         try {
           const existingProfileResponse = await Client.users.getProfile();
 
           if (existingProfileResponse.status === 404) {
             console.log('No profile found, navigating to SelectIconScreen.');
-            navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
+            navigation.replace('MainStack', {screen: 'SelectIconScreen'});
           } else if (
             existingProfileResponse.status === 200 &&
             existingProfileResponse.data
@@ -79,17 +84,23 @@ function LoginScreen({navigation}) {
             dispatch(setProfileNickname(existingProfileResponse.data.nickname));
             dispatch(setProfileBio(existingProfileResponse.data.bio));
             dispatch(setDepartment(existingProfileResponse.data.department));
-            navigation.replace('MainStack', {screen: 'MainBottomScreen'});
+            //navigation.replace('MainStack', {screen: 'MainBottomScreen'});
+            navigation.reset({
+              index: 0, // The index of the active screen
+              routes: [
+                {name: 'MainStack', params: {screen: 'MainBottomScreen'}},
+              ],
+            });
           } else {
             console.log('Unexpected response format');
-            navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
+            navigation.replace('MainStack', {screen: 'SelectIconScreen'});
           }
         } catch (error) {
           console.log(
             'Error checking profile: ',
             error.response?.data || error.message,
           );
-          navigation.navigate('MainStack', {screen: 'SelectIconScreen'});
+          navigation.replace('MainStack', {screen: 'SelectIconScreen'});
         }
       }
     } catch (error) {

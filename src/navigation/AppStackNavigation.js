@@ -8,6 +8,14 @@ import MainStackNavigation from './MainStackNavigation';
 
 export const navigationRef = createNavigationContainerRef();
 const AppStack = createNativeStackNavigator();
+
+export function navigate(name, params) {
+  if (navigationRef.current.isReady()) {
+    navigationRef.current.navigate(name, params);
+  } else {
+  }
+}
+
 export default function AppStackNavigation() {
   const navigation = useNavigation();
 
